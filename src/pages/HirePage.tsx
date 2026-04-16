@@ -1,29 +1,72 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
+import { parseEther } from 'viem'
+import { useAccount, useChainId, useSwitchChain, useWaitForTransactionReceipt, useWriteContract } from 'wagmi'
+import { useConnectModal } from '@rainbow-me/rainbowkit'
+
 import { discoverAgents, type WorkAgntAgent } from '../lib/workagnt-api'
+import { AGNT_MARKETPLACE_ABI, AGNT_MARKETPLACE_ADDRESS } from '../lib/contracts'
+import { zgGalileo } from '../lib/wagmi'
 
 export default function HirePage() {
   const { slug } = useParams<{ slug: string }>()
   const navigate = useNavigate()
   const [agent, setAgent] = useState<WorkAgntAgent | null>(null)
   const [brief, setBrief] = useState('')
-  const [budget, setBudget] = useState('10')
-  const [submitting, setSubmitting] = useState(false)
+  const [budget, setBudget] = useState('0.01')
+
+  const { isConnected } = useAccount()
+  const chainId = useChainId()
+  const { openConnectModal } = useConnectModal()
+  const { switchChain } = useSwitchChain()
+  const { writeContractAsync, isPending, data: txHash, error: writeError } = useWriteContract()
+  const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash: txHash })
 
   useEffect(() => {
     discoverAgents().then(r => setAgent((r.agents || []).find(a => a.slug === slug) || null))
   }, [slug])
 
+  useEffect(() => {
+    if (isConfirmed && txHash) {
+      // Contract auto-increments jobCount; we don't know the exact id client-side without a read.
+      // Route to a pending jobs view; the user can find their job in MyJobs.
+      navigate('/my-jobs')
+    }
+  }, [isConfirmed, txHash, navigate])
+
+  const wrongChain = isConnected && chainId !== zgGalileo.id
+
   const handleHire = async () => {
-    setSubmitting(true)
-    // TODO: wagmi writeContract → AgntMarketplace.postJob
-    await new Promise(r => setTimeout(r, 800))
-    setSubmitting(false)
-    alert('Onchain escrow coming soon — contract deployment pending.')
-    navigate(`/job/demo-${Date.now()}`)
+    if (!agent) return
+    if (!isConnected) return openConnectModal?.()
+    if (wrongChain) return switchChain({ chainId: zgGalileo.id })
+
+    try {
+      await writeContractAsync({
+        address: AGNT_MARKETPLACE_ADDRESS,
+        abi: AGNT_MARKETPLACE_ABI,
+        functionName: 'postJob',
+        args: [agent.slug, brief],
+        value: parseEther(budget || '0'),
+        chainId: zgGalileo.id,
+      })
+    } catch (e) {
+      // wagmi surfaces the error; keep the try/catch so we don't unhandled-reject
+      console.error('postJob failed', e)
+    }
   }
 
   if (!agent) return <div className="min-h-screen pt-20 text-center text-t3">Loading…</div>
+
+  const buttonLabel = !isConnected
+    ? 'Connect wallet →'
+    : wrongChain
+      ? 'Switch to 0G Galileo'
+      : isPending
+        ? 'Awaiting signature…'
+        : isConfirming
+          ? 'Confirming on chain…'
+          : `Hire for ${budget} OG →`
 
   return (
     <div className="min-h-screen bg-bg pt-10 pb-20 px-4 sm:px-6">
@@ -35,7 +78,7 @@ export default function HirePage() {
             Hire {agent.name}
           </h1>
           <p className="text-sm text-t3 mb-6">
-            Escrow locks on 0G Chain. Released when you approve the deliverable.
+            Native OG escrow locks on 0G Chain. Released when you approve the deliverable.
           </p>
 
           <label className="block mb-4">
@@ -50,13 +93,16 @@ export default function HirePage() {
           </label>
 
           <label className="block mb-6">
-            <span className="text-xs font-bold text-t2 uppercase tracking-wider mb-1.5 block">Budget (test token)</span>
+            <span className="text-xs font-bold text-t2 uppercase tracking-wider mb-1.5 block">Budget (OG)</span>
             <input
               value={budget}
               onChange={e => setBudget(e.target.value)}
               type="number"
+              min="0"
+              step="0.001"
               className="w-full px-3 py-2.5 bg-surface-2 border border-line rounded-xl text-sm text-t1 focus:border-pink outline-none"
             />
+            <p className="text-[10px] text-t3 mt-1">Tip: keep it small on testnet. 0.01 OG is plenty.</p>
           </label>
 
           <div className="p-3 bg-zg/5 border border-zg/20 rounded-xl mb-4 text-xs text-t2 leading-relaxed">
@@ -84,11 +130,28 @@ export default function HirePage() {
 
           <button
             onClick={handleHire}
-            disabled={!brief.trim() || submitting}
+            disabled={(!brief.trim() && isConnected && !wrongChain) || isPending || isConfirming}
             className="w-full py-3 bg-gradient-to-r from-pink to-purple text-white text-sm font-medium rounded-xl hover:opacity-90 disabled:opacity-40"
           >
-            {submitting ? 'Locking escrow…' : `Hire for ${budget} tokens →`}
+            {buttonLabel}
           </button>
+
+          {writeError && (
+            <p className="text-xs text-red mt-3 break-words">{writeError.message.split('\n')[0]}</p>
+          )}
+          {txHash && (
+            <p className="text-xs text-t3 mt-3 break-all">
+              Tx:{' '}
+              <a
+                href={`https://chainscan-galileo.0g.ai/tx/${txHash}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-pink hover:text-pink/80 underline"
+              >
+                {txHash.slice(0, 10)}…{txHash.slice(-8)}
+              </a>
+            </p>
+          )}
         </div>
       </div>
     </div>

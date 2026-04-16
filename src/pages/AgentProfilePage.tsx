@@ -1,6 +1,10 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
+import { formatEther, zeroHash } from 'viem'
+import { useReadContract } from 'wagmi'
 import { discoverAgents, type WorkAgntAgent } from '../lib/workagnt-api'
+import { AGNT_MARKETPLACE_ABI, AGNT_MARKETPLACE_ADDRESS } from '../lib/contracts'
+import { zgGalileo } from '../lib/wagmi'
 
 export default function AgentProfilePage() {
   const { slug } = useParams<{ slug: string }>()
@@ -12,6 +16,30 @@ export default function AgentProfilePage() {
       .then(r => setAgent((r.agents || []).find(a => a.slug === slug) || null))
       .finally(() => setLoading(false))
   }, [slug])
+
+  const { data: reputation } = useReadContract({
+    address: AGNT_MARKETPLACE_ADDRESS,
+    abi: AGNT_MARKETPLACE_ABI,
+    functionName: 'getAgentReputation',
+    args: slug ? [slug] : undefined,
+    chainId: zgGalileo.id,
+    query: { enabled: Boolean(slug), refetchInterval: 20000 },
+  })
+
+  const { data: owner } = useReadContract({
+    address: AGNT_MARKETPLACE_ADDRESS,
+    abi: AGNT_MARKETPLACE_ABI,
+    functionName: 'agentOwnerOf',
+    args: slug ? [slug] : undefined,
+    chainId: zgGalileo.id,
+    query: { enabled: Boolean(slug) },
+  })
+
+  const onchainHires = reputation ? Number(reputation[0]) : 0
+  const avgRating = reputation ? Number(reputation[4]) / 100 : 0 // avgRatingE2
+  const totalEarned = reputation ? reputation[2] : 0n
+  const repBlob = reputation ? reputation[3] : zeroHash
+  const hasRep = onchainHires > 0
 
   if (loading) return <div className="min-h-screen pt-20 text-center text-t3">Loading…</div>
   if (!agent) {
@@ -57,26 +85,45 @@ export default function AgentProfilePage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-3 mb-6">
-          <div className="bg-surface border border-line rounded-xl p-4 text-center">
-            <p className="text-[10px] text-t3 uppercase tracking-wider">Chats</p>
-            <p className="text-xl font-bold text-t1 mt-1">{agent.total_chats}</p>
-          </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
           <div className="bg-surface border border-line rounded-xl p-4 text-center">
             <p className="text-[10px] text-t3 uppercase tracking-wider">Onchain Hires</p>
-            <p className="text-xl font-bold text-zg mt-1">—</p>
+            <p className="text-xl font-bold text-zg mt-1">{onchainHires}</p>
           </div>
           <div className="bg-surface border border-line rounded-xl p-4 text-center">
             <p className="text-[10px] text-t3 uppercase tracking-wider">Avg Rating</p>
-            <p className="text-xl font-bold text-amber-500 mt-1">—</p>
+            <p className="text-xl font-bold text-amber-500 mt-1">{hasRep ? avgRating.toFixed(2) : '—'}</p>
+          </div>
+          <div className="bg-surface border border-line rounded-xl p-4 text-center">
+            <p className="text-[10px] text-t3 uppercase tracking-wider">Earned</p>
+            <p className="text-xl font-bold text-t1 mt-1">{formatEther(totalEarned)} <span className="text-xs text-t3">OG</span></p>
+          </div>
+          <div className="bg-surface border border-line rounded-xl p-4 text-center">
+            <p className="text-[10px] text-t3 uppercase tracking-wider">Demo Chats</p>
+            <p className="text-xl font-bold text-t1 mt-1">{agent.total_chats}</p>
           </div>
         </div>
 
         <div className="bg-surface border border-line rounded-2xl p-5">
           <h2 className="text-xs font-bold text-t3 uppercase tracking-wider mb-3">Reputation · 0G Storage</h2>
-          <p className="text-sm text-t3">
-            No hire history yet. Be the first to hire {agent.name} — reputation record will be pinned to 0G Storage on completion.
-          </p>
+          {hasRep ? (
+            <div className="space-y-2 text-sm text-t2">
+              <p>
+                <span className="text-t1 font-semibold">{onchainHires}</span> completed hire{onchainHires === 1 ? '' : 's'},
+                averaging <span className="text-amber-500 font-semibold">{avgRating.toFixed(2)} / 5</span> ★.
+              </p>
+              {owner && owner !== '0x0000000000000000000000000000000000000000' && (
+                <p className="text-xs text-t3 font-mono">Owner: {String(owner).slice(0, 6)}…{String(owner).slice(-4)}</p>
+              )}
+              {repBlob !== zeroHash && (
+                <p className="text-xs text-t3 break-all">0G Storage blob: <span className="font-mono">{repBlob}</span></p>
+              )}
+            </div>
+          ) : (
+            <p className="text-sm text-t3">
+              No onchain hire history yet. Be the first to hire {agent.name} — reputation will be recorded on 0G Chain and pinned to 0G Storage on approval.
+            </p>
+          )}
         </div>
       </div>
     </div>
