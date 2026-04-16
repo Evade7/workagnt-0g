@@ -1,18 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import {IERC20} from "openzeppelin-contracts/token/ERC20/IERC20.sol";
-import {SafeERC20} from "openzeppelin-contracts/token/ERC20/utils/SafeERC20.sol";
 import {ReentrancyGuard} from "openzeppelin-contracts/utils/ReentrancyGuard.sol";
 
 /// @title AgntMarketplace
-/// @notice Onchain hiring marketplace for AI agents. Clients post jobs, agent owners accept,
-///         deliverables are committed as hashes (pointing to 0G Storage), and approval
-///         releases escrow + records reputation.
-/// @dev Designed for 0G Chain (EVM-compatible L1). Reputation blob CIDs live on 0G Storage.
+/// @notice Onchain hiring marketplace for AI agents. Clients post jobs with
+///         native-coin escrow (OG on 0G Chain). Deliverables are committed
+///         as hashes pointing to 0G Storage. Approval releases escrow + records
+///         reputation.
+/// @dev Deployed on 0G Galileo testnet; escrow denominated in native OG.
+///      On mainnet, a separate version will accept an ERC20 (the canonical project token).
 contract AgntMarketplace is ReentrancyGuard {
-    using SafeERC20 for IERC20;
-
     enum JobStatus {
         None,      // 0
         Posted,    // 1 — escrow locked, awaiting agent accept
@@ -27,10 +25,9 @@ contract AgntMarketplace is ReentrancyGuard {
         uint256 id;
         address client;
         address agentOwner;    // 0 until accepted; must match registered agent owner
-        string agentSlug;      // WorkAgnt agent slug (e.g. "base-token-scanner")
+        string agentSlug;      // agent slug (e.g. "base-token-scanner")
         string brief;          // what the client wants done
-        uint256 budget;
-        IERC20 token;
+        uint256 budget;        // native OG locked in escrow
         JobStatus status;
         bytes32 deliverableHash; // 0G Storage CID hash of the deliverable
         uint8 rating;            // 1-5 on approval
@@ -44,7 +41,7 @@ contract AgntMarketplace is ReentrancyGuard {
     struct Reputation {
         uint64 totalHires;
         uint64 ratingSum;       // sum of ratings 1..5, avg = ratingSum/totalHires
-        uint128 totalEarned;    // cumulative budget approved (denominated per token — simplification)
+        uint128 totalEarned;    // cumulative budget approved (in OG wei)
         bytes32 reputationBlobHash; // pointer to the latest reputation JSON blob on 0G Storage
     }
 
@@ -53,7 +50,7 @@ contract AgntMarketplace is ReentrancyGuard {
     mapping(string => Reputation) public reputation; // keyed by agentSlug
     mapping(string => address) public agentOwnerOf;  // slug -> owner; first acceptor claims
 
-    event JobPosted(uint256 indexed jobId, address indexed client, string indexed agentSlug, uint256 budget, address token);
+    event JobPosted(uint256 indexed jobId, address indexed client, string indexed agentSlug, uint256 budget);
     event JobAccepted(uint256 indexed jobId, address indexed agentOwner);
     event JobCompleted(uint256 indexed jobId, bytes32 deliverableHash);
     event JobApproved(uint256 indexed jobId, uint8 rating, bytes32 reputationBlobHash);
@@ -74,16 +71,15 @@ contract AgntMarketplace is ReentrancyGuard {
         _;
     }
 
-    /// @notice Post a job. Locks `budget` of `token` in escrow.
-    function postJob(string calldata agentSlug, string calldata brief, IERC20 token, uint256 budget)
+    /// @notice Post a job. Locks msg.value of native OG in escrow.
+    function postJob(string calldata agentSlug, string calldata brief)
         external
+        payable
         nonReentrant
         returns (uint256 jobId)
     {
-        require(budget > 0, "Budget must be > 0");
+        require(msg.value > 0, "Budget must be > 0");
         require(bytes(agentSlug).length > 0, "Missing agent");
-
-        token.safeTransferFrom(msg.sender, address(this), budget);
 
         jobId = ++jobCount;
         Job storage j = jobs[jobId];
@@ -91,12 +87,11 @@ contract AgntMarketplace is ReentrancyGuard {
         j.client = msg.sender;
         j.agentSlug = agentSlug;
         j.brief = brief;
-        j.token = token;
-        j.budget = budget;
+        j.budget = msg.value;
         j.status = JobStatus.Posted;
         j.createdAt = block.timestamp;
 
-        emit JobPosted(jobId, msg.sender, agentSlug, budget, address(token));
+        emit JobPosted(jobId, msg.sender, agentSlug, msg.value);
     }
 
     /// @notice Agent owner accepts the job. First acceptor for a slug claims ownership.
@@ -129,8 +124,6 @@ contract AgntMarketplace is ReentrancyGuard {
     }
 
     /// @notice Client approves. Funds release to agent owner. Reputation blob hash updated.
-    /// @param rating 1..5
-    /// @param newReputationBlobHash 0G Storage CID for the refreshed per-agent reputation JSON
     function approveJob(uint256 jobId, uint8 rating, bytes32 newReputationBlobHash)
         external
         nonReentrant
@@ -143,8 +136,9 @@ contract AgntMarketplace is ReentrancyGuard {
         j.rating = rating;
         j.approvedAt = block.timestamp;
 
-        // Release funds
-        j.token.safeTransfer(j.agentOwner, j.budget);
+        // Release native OG to agent owner
+        (bool ok, ) = j.agentOwner.call{value: j.budget}("");
+        require(ok, "Transfer failed");
 
         // Update reputation
         Reputation storage r = reputation[j.agentSlug];
@@ -174,7 +168,8 @@ contract AgntMarketplace is ReentrancyGuard {
     {
         Job storage j = jobs[jobId];
         j.status = JobStatus.Cancelled;
-        j.token.safeTransfer(j.client, j.budget);
+        (bool ok, ) = j.client.call{value: j.budget}("");
+        require(ok, "Refund failed");
         emit JobCancelled(jobId);
     }
 
@@ -192,7 +187,6 @@ contract AgntMarketplace is ReentrancyGuard {
         avgRatingE2 = r.totalHires == 0 ? 0 : uint16((uint256(r.ratingSum) * 100) / r.totalHires);
     }
 
-    /// @notice Paginated job view — cheap for UIs listing MyJobs.
     function getJob(uint256 jobId) external view returns (Job memory) {
         return jobs[jobId];
     }
