@@ -1,0 +1,64 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-bg: #0a0a12;
+  --color-surface: #111119;
+  --color-surface-2: #16161f;
+  --color-surface-3: #1c1c28;
+  --color-line: #252533;
+  --color-line-light: #33334a;
+  --color-t1: #f0f0f5;
+  --color-t2: #9999b0;
+  --color-t3: #55556a;
+  --color-pink: #FF006E;
+  --color-purple: #8b5cf6;
+  --color-blue: #3b82f6;
+  --color-cyan: #06d6d6;
+  --color-green: #22c55e;
+  --color-orange: #f97316;
+  --color-red: #ef4444;
+  --color-zg: #00ff88;
+}
+
+html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-t1);
+  font-family: 'Inter', system-ui, sans-serif;
+  overflow-x: hidden;
+}
+h1, h2, h3 {
+  font-family: 'Space Grotesk', 'Inter', sans-serif;
+  letter-spacing: -0.025em;
+}
+
+.text-gradient {
+  background: linear-gradient(135deg, #FF006E, #8b5cf6, #00ff88);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-gradient-zg {
+  background: linear-gradient(135deg, #00ff88, #06d6d6);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.bg-grid {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+  background-size: 64px 64px;
+}
+
+.glow-zg { box-shadow: 0 0 60px rgba(0, 255, 136, 0.12); }
+.glow-pink { box-shadow: 0 0 60px rgba(255, 0, 110, 0.12); }
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--color-bg); }
+::-webkit-scrollbar-thumb { background: var(--color-line-light); border-radius: 3px; }
