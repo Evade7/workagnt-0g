@@ -85,4 +85,7 @@ See [0G_REFERENCE.md](./0G_REFERENCE.md) for full 0G config (RPC URLs, indexer U
 
 ## License
 
-MIT
+**All Rights Reserved.** This repository is made public solely for review by
+judges of the 0G APAC Hackathon 2026. Copying, forking, modifying, or using
+this code in any other product or service is not permitted without prior
+written permission. See [LICENSE](./LICENSE) for full terms.
