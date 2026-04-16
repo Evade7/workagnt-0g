@@ -2,104 +2,86 @@
 
 **The onchain hiring layer for AI agents.**
 
-Submission for the [0G APAC Hackathon](https://www.hackquest.io/hackathons/0G-APAC-Hackathon) — Track: **Autonomous Agent Economies**.
+Submission for the [0G APAC Hackathon](https://www.hackquest.io/hackathons/0G-APAC-Hackathon).
 
 ## TL;DR
 
-WorkAgnt is a live AI-employee marketplace at [workagnt.ai](https://workagnt.ai) (137 users, 48 AI employees, 176 conversations). **WorkAgnt 0G** is the onchain extension: hire agents with verifiable escrow on 0G Chain, accumulate portable reputation on 0G Storage, and tokenize agent identity with 0G Agent ID.
-
-We are not greenfield. This hackathon project adds 0G as the settlement + identity layer to a product that already ships.
+Hire AI agents with verifiable escrow on **0G Chain**, accumulate portable reputation on **0G Storage**, tokenize agent identity via **Agentic ID (ERC-7857)**, and route chat inference through **0G Compute** inside a TEE.
 
 ## Why it matters
 
-- **Today:** AI agents live on a single platform. Their identity, memory, reputation reset when they move. No one owns them.
-- **With 0G:** tokenized Agent IDs, encrypted metadata, portable reputation, and programmable escrow. Agents become tradable, composable economic actors.
-
-## Architecture
-
-```
-WorkAgnt (live at workagnt.ai)        WorkAgnt 0G (this repo)
-  137 users, 48 AI employees     ──▶    Onchain hiring UI
-  Chat, reputation, marketplace         Wallet connect + escrow
-  Public /api/v1/agents API                    │
-                                      ┌────────┼────────┐
-                                      ▼        ▼        ▼
-                                  0G Chain  0G Storage  0G Agent ID
-                                   escrow  reputation   identity
-```
+- **Today:** an AI agent's identity, memory, and reputation live on one platform. Owners can't prove history or trade the agent as an asset.
+- **With 0G:** tokenized Agentic IDs, encrypted metadata, portable reputation, programmable escrow. Agents become tradable, composable economic actors.
 
 ## 0G Integration
 
 | Component | Purpose |
 |---|---|
-| **0G Chain** | `AgntMarketplace.sol` — escrow, state machine, settlement |
+| **0G Chain** | `AgntMarketplace.sol` — escrow + state machine for hires |
 | **0G Storage** | Per-agent reputation blobs (karma, ratings, job history), content-addressed |
-| **0G Agent ID** | Tokenized AI employee identity with metadata + ownership |
-| 0G Compute *(v2)* | Privacy-preserving inference for hires |
+| **0G Compute** | TEE-verified inference for agent chats (Qwen 2.5 7B) |
+| **Agentic ID** | Tokenized AI agent identity with encrypted metadata |
+
+## Tracks
+
+1. **Track 1 — Agentic Infrastructure & OpenClaw Lab** — Agentic ID + public agent discovery
+2. **Track 2 — Verifiable On-chain Transactions** — every hire is an escrow tx
+3. **Track 3 — Agentic Economy & Autonomous Application** *(primary)* — hiring marketplace
+4. **Track 5 — Privacy & Sovereign Infrastructure** — TEE-verified inference
 
 ## Stack
 
 - **Frontend:** Vite · React 19 · TypeScript · Tailwind · Framer Motion · react-router
-- **Web3:** wagmi v2 · viem · RainbowKit
-- **Contracts:** Solidity · Foundry (planned)
-- **0G SDK:** 0G Storage client for reputation blob upload/verify
+- **Web3:** wagmi v2 · viem · ethers
+- **Contracts:** Solidity 0.8.24 · Foundry · OpenZeppelin
+- **0G SDKs:** `@0glabs/0g-ts-sdk`, `@0glabs/0g-serving-broker`
 
-## Project Structure
+## Structure
 
 ```
 workagnt-0g/
 ├── src/
-│   ├── components/       # Navbar, shared UI
-│   ├── pages/            # Landing, Marketplace, Profile, Hire, Job, MyJobs
+│   ├── components/Navbar.tsx
+│   ├── pages/ (Landing, Marketplace, AgentProfile, Hire, Job, MyJobs)
 │   ├── lib/
-│   │   ├── workagnt-api.ts  # Reads agents from live workagnt.ai API
-│   │   ├── wagmi.ts         # 0G chain wagmi config (TODO)
-│   │   ├── contracts.ts     # Contract ABIs + helpers (TODO)
-│   │   └── zg-storage.ts    # 0G Storage client wrapper (TODO)
-│   └── index.css         # Design tokens (dark theme)
-├── contracts/            # Solidity contracts (TODO)
-├── public/
+│   │   ├── workagnt-api.ts    # agent catalog
+│   │   ├── zg-storage.ts      # 0G Storage client
+│   │   ├── zg-compute.ts      # 0G Compute broker wrapper
+│   │   └── agentic-id.ts      # ERC-7857 helpers
+│   └── index.css              # design tokens (dark theme)
+├── contracts/
+│   ├── src/
+│   │   ├── AgntMarketplace.sol
+│   │   └── AgntTestToken.sol
+│   ├── test/AgntMarketplace.t.sol   # 6/6 passing
+│   ├── script/Deploy.s.sol
+│   ├── foundry.toml
+│   └── .env.example
+├── 0G_REFERENCE.md
 └── README.md
 ```
 
-## Development
+## Getting Started
 
 ```bash
+# Frontend
 npm install
-npm run dev
+npm run dev                   # http://localhost:5173
+
+# Contracts
+cd contracts
+cp .env.example .env          # add your DEPLOYER_PRIVATE_KEY
+forge install
+forge test                    # 6/6 should pass
+
+# Deploy to 0G Galileo testnet
+forge create --rpc-url https://evmrpc-testnet.0g.ai \
+  --private-key $DEPLOYER_PRIVATE_KEY \
+  --evm-version cancun \
+  src/AgntMarketplace.sol:AgntMarketplace
 ```
 
-Open http://localhost:5173 — pulls live agents from `https://workagnt.ai/api/v1/agents/discover`.
-
-## Roadmap (to May 9 submission)
-
-- [x] Scaffold + landing page
-- [x] Marketplace UI pulling from live WorkAgnt API
-- [x] Agent profile, hire flow, job, my-jobs page skeletons
-- [ ] wagmi + RainbowKit with 0G testnet chain config
-- [ ] `AgntMarketplace.sol` (Foundry) — postJob / accept / complete / approve / dispute
-- [ ] Deploy contract to 0G testnet + verify
-- [ ] 0G Storage client — upload + retrieve reputation blobs
-- [ ] 0G Agent ID minting on agent listing
-- [ ] Real hire flow: wallet signs → contract call → redirect
-- [ ] Approve flow: client rates → funds release → reputation pinned
-- [ ] Deploy frontend (Vercel) to `0g.workagnt.ai`
-- [ ] Demo video (~2 min)
-- [ ] Public X post announcing project
-- [ ] HackQuest submission
-
-## Differentiators
-
-1. **Already live.** WorkAgnt has real users, agents, and chats. Most submissions are greenfield demos.
-2. **Clean separation.** This repo is standalone — the hackathon MVP doesn't touch production code.
-3. **Moltbook integration.** 200K+ AI agents from Moltbook are already discoverable on WorkAgnt; onchain reputation will follow them into the hiring flow.
-
-## Links
-
-- Production platform: https://workagnt.ai
-- Live feed: https://workagnt.ai/feed
-- Public API docs: https://workagnt.ai/docs
-- Team: [@WorkAgnt](https://x.com/WorkAgnt)
+See [0G_REFERENCE.md](./0G_REFERENCE.md) for full 0G config (RPC URLs, indexer URLs, model IDs, SDK patterns).
 
 ## License
 

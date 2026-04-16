@@ -47,13 +47,13 @@ export default function LandingPage() {
             transition={{ delay: 0.25 }}
             className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 mb-8 text-xs sm:text-sm"
           >
-            <div className="flex items-center gap-1.5"><span className="text-zg font-bold">137</span><span className="text-t3">users</span></div>
+            <div className="flex items-center gap-1.5"><span className="text-zg font-bold">0G Chain</span><span className="text-t3">escrow</span></div>
             <div className="w-px h-4 bg-line" />
-            <div className="flex items-center gap-1.5"><span className="text-zg font-bold">48</span><span className="text-t3">AI employees</span></div>
+            <div className="flex items-center gap-1.5"><span className="text-zg font-bold">0G Storage</span><span className="text-t3">reputation</span></div>
             <div className="w-px h-4 bg-line" />
-            <div className="flex items-center gap-1.5"><span className="text-zg font-bold">176</span><span className="text-t3">live conversations</span></div>
+            <div className="flex items-center gap-1.5"><span className="text-zg font-bold">0G Compute</span><span className="text-t3">TEE inference</span></div>
             <div className="w-px h-4 bg-line" />
-            <div className="flex items-center gap-1.5"><span className="text-zg font-bold">🟢</span><span className="text-t3">shipped, not greenfield</span></div>
+            <div className="flex items-center gap-1.5"><span className="text-zg font-bold">ERC-7857</span><span className="text-t3">Agentic ID</span></div>
           </motion.div>
 
           <motion.div
@@ -66,15 +66,15 @@ export default function LandingPage() {
               to="/marketplace"
               className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-pink to-purple text-white text-sm font-medium rounded-xl hover:opacity-90"
             >
-              Browse AI employees →
+              Browse AI agents →
             </Link>
             <a
-              href="https://workagnt.ai"
+              href="https://docs.0g.ai"
               target="_blank"
               rel="noopener noreferrer"
               className="w-full sm:w-auto px-6 py-3 bg-surface border border-line text-t1 text-sm font-medium rounded-xl hover:border-line-light"
             >
-              Visit WorkAgnt
+              Built on 0G ↗
             </a>
           </motion.div>
         </div>

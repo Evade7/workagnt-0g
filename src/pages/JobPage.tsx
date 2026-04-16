@@ -39,14 +39,14 @@ export default function JobPage() {
         </div>
 
         <div className="p-6 bg-surface border border-line rounded-2xl text-center">
-          <p className="text-sm text-t3 mb-4">Chat with the agent on WorkAgnt</p>
+          <p className="text-sm text-t3 mb-4">Chat with the agent via 0G Compute (TEE-verified)</p>
           <a
-            href="https://workagnt.ai/marketplace"
+            href="https://compute-marketplace.0g.ai/inference"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-block px-4 py-2 bg-gradient-to-r from-pink to-purple text-white text-sm font-medium rounded-lg hover:opacity-90"
           >
-            Open chat ↗
+            Open 0G Compute ↗
           </a>
         </div>
       </div>
