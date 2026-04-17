@@ -57,7 +57,7 @@ export default function Navbar() {
                         onClick={openAccountModal}
                         className="flex items-center gap-2 px-3 py-1.5 bg-surface border border-line rounded-lg hover:border-line-light transition-colors"
                       >
-                        {account.displayBalance && (
+                        {account.displayBalance && !account.displayBalance.includes('NaN') && (
                           <span className="hidden sm:inline text-xs text-t2 font-mono">{account.displayBalance}</span>
                         )}
                         <span className="text-xs font-medium text-t1">{account.displayName}</span>

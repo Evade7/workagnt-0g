@@ -19,7 +19,8 @@
   --color-green: #16a34a;
   --color-orange: #ea580c;
   --color-red: #dc2626;
-  --color-zg: #059669;
+  --color-zg: #9200E1;
+  --color-zg-light: #B75FFF;
 }
 
 [data-theme="dark"] {
@@ -39,7 +40,8 @@
   --color-green: #22c55e;
   --color-orange: #f97316;
   --color-red: #ef4444;
-  --color-zg: #00ff88;
+  --color-zg: #B75FFF;
+  --color-zg-light: #CB8AFF;
 }
 
 html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
@@ -69,13 +71,13 @@ h1, h2, h3 {
 }
 
 .text-gradient-zg {
-  background: linear-gradient(135deg, #059669, #0891b2);
+  background: linear-gradient(135deg, #9200E1, #B75FFF);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 [data-theme="dark"] .text-gradient-zg {
-  background: linear-gradient(135deg, #00ff88, #06d6d6);
+  background: linear-gradient(135deg, #B75FFF, #CB8AFF);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -94,9 +96,9 @@ h1, h2, h3 {
   background-size: 64px 64px;
 }
 
-.glow-zg { box-shadow: 0 0 60px rgba(5, 150, 105, 0.08); }
+.glow-zg { box-shadow: 0 0 60px rgba(146, 0, 225, 0.1); }
 .glow-pink { box-shadow: 0 0 60px rgba(224, 0, 95, 0.08); }
-[data-theme="dark"] .glow-zg { box-shadow: 0 0 60px rgba(0, 255, 136, 0.12); }
+[data-theme="dark"] .glow-zg { box-shadow: 0 0 60px rgba(183, 95, 255, 0.15); }
 [data-theme="dark"] .glow-pink { box-shadow: 0 0 60px rgba(255, 0, 110, 0.12); }
 
 ::-webkit-scrollbar { width: 6px; }
