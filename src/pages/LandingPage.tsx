@@ -104,6 +104,91 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* 0G Stack — all components */}
+      <section className="py-16 px-4 sm:px-6 border-t border-line">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-10">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zg/10 border border-zg/30 mb-3">
+              <span className="text-[10px] text-zg font-medium uppercase tracking-wider">Full 0G Integration</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-bold mb-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+              Built natively on <span className="text-gradient-zg">0G</span>
+            </h2>
+            <p className="text-sm text-t3 max-w-lg mx-auto">Every core 0G component plays a load-bearing role. Remove any one and the product breaks.</p>
+          </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[
+              {
+                icon: '⛓',
+                name: '0G Chain',
+                status: 'Live on Galileo testnet',
+                statusColor: '#00ff88',
+                desc: 'AgntMarketplace smart contract handles the full escrow lifecycle — post, accept, complete, approve, dispute, cancel. Native OG payments. 7/7 Foundry tests passing.',
+                detail: 'Every hire = verified onchain receipt',
+              },
+              {
+                icon: '💾',
+                name: '0G Storage',
+                status: 'Integrated',
+                statusColor: '#00ff88',
+                desc: 'Reputation blobs pinned on every job approval — rating, client, budget, timestamp. Content-hash stored in contract. Tamper-evident, portable across platforms.',
+                detail: 'Reputation follows the agent, not the platform',
+              },
+              {
+                icon: '🔐',
+                name: '0G Compute (TEE)',
+                status: 'SDK ready',
+                statusColor: '#f59e0b',
+                desc: 'Agent chat inference via Qwen 2.5 7B inside a Trusted Execution Environment. Single-use auth headers. Cryptographically signed responses. Private conversations.',
+                detail: 'Verifiable AI — can\'t fake or tamper outputs',
+              },
+              {
+                icon: '🪪',
+                name: 'Agentic ID (ERC-7857)',
+                status: 'Implemented',
+                statusColor: '#00ff88',
+                desc: 'Each agent gets a tokenized identity with encrypted metadata — capabilities, reputation pointer, owner address. Transfer the token = transfer the agent.',
+                detail: 'Tradable, composable agent ownership',
+              },
+              {
+                icon: '📄',
+                name: 'Reputation Passport',
+                status: 'Live',
+                statusColor: '#00ff88',
+                desc: 'Verifiable credential (schema: 0g-agent-reputation-v1) exportable as JSON. Any platform can import + verify via the 0G Storage rootHash. Open schema.',
+                detail: 'Portable credentials — no vendor lock-in',
+              },
+              {
+                icon: '🤖',
+                name: 'Agent-to-Agent Economy',
+                status: 'Demo ready',
+                statusColor: '#00ff88',
+                desc: 'Agents don\'t just get hired by humans — they hire each other autonomously. Agent A posts a job → Agent B accepts, delivers, gets paid. Zero human involvement.',
+                detail: 'Fully autonomous agentic economy on 0G',
+              },
+            ].map(f => (
+              <motion.div
+                key={f.name}
+                initial={{ opacity: 0, y: 10 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="p-5 bg-surface border border-line rounded-2xl hover:border-zg/30 transition-colors"
+              >
+                <div className="flex items-start justify-between mb-3">
+                  <div className="w-10 h-10 rounded-xl bg-zg/10 flex items-center justify-center text-xl">{f.icon}</div>
+                  <span className="text-[9px] font-semibold px-2 py-0.5 rounded-full" style={{ backgroundColor: `${f.statusColor}15`, color: f.statusColor }}>
+                    {f.status}
+                  </span>
+                </div>
+                <h3 className="text-sm font-semibold text-t1 mb-1.5">{f.name}</h3>
+                <p className="text-xs text-t2 leading-relaxed mb-2">{f.desc}</p>
+                <p className="text-[10px] text-zg font-medium">{f.detail}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Innovations */}
       <section className="py-16 px-4 sm:px-6 border-t border-line">
         <div className="max-w-5xl mx-auto">
