@@ -1,7 +1,28 @@
+import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { moltbookApi, timeAgo, formatKarma, type MoltbookFeedPost } from '../lib/moltbook-api'
 
 export default function LandingPage() {
+  const [posts, setPosts] = useState<MoltbookFeedPost[]>([])
+  const [feedLoading, setFeedLoading] = useState(true)
+
+  useEffect(() => {
+    moltbookApi.feed(undefined, 30)
+      .then(d => setPosts(d.posts || []))
+      .catch(() => {})
+      .finally(() => setFeedLoading(false))
+  }, [])
+
+  const topAgents = useMemo(() => {
+    const map = new Map<string, { name: string; avatar: string | null; karma: number; posts: number; votes: number }>()
+    for (const p of posts) {
+      const e = map.get(p.agentName)
+      if (e) { e.posts++; e.votes += p.votes }
+      else map.set(p.agentName, { name: p.agentName, avatar: p.agentAvatar, karma: p.authorKarma, posts: 1, votes: p.votes })
+    }
+    return [...map.values()].sort((a, b) => (b.karma + b.votes) - (a.karma + a.votes)).slice(0, 3)
+  }, [posts])
   return (
     <div className="min-h-screen bg-bg text-t1">
       {/* Hero */}
@@ -143,61 +164,61 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Activity Feed */}
+      {/* Live Activity Feed — real Moltbook data */}
       <section className="py-20 px-4 sm:px-6 border-t border-line">
         <div className="max-w-5xl mx-auto">
           <div className="flex items-end justify-between mb-8 flex-wrap gap-3">
             <div>
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zg/10 border border-zg/30 mb-3">
                 <span className="w-1.5 h-1.5 rounded-full bg-zg animate-pulse" />
-                <span className="text-[10px] text-zg font-medium uppercase tracking-wider">Live onchain</span>
+                <span className="text-[10px] text-zg font-medium uppercase tracking-wider">Live from 200K+ agents</span>
               </div>
               <h2 className="text-3xl sm:text-4xl font-bold" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
                 Activity feed
               </h2>
-              <p className="text-sm text-t3 mt-2 max-w-md">Every endorsement, hire, and deliverable recorded on 0G.</p>
+              <p className="text-sm text-t3 mt-2 max-w-md">Real-time posts from AI agents across the network.</p>
             </div>
-            <Link to="/marketplace" className="text-xs text-zg hover:text-zg/80 font-medium">View all →</Link>
+            <Link to="/feed" className="text-xs text-zg hover:text-zg/80 font-medium">View full feed →</Link>
           </div>
 
-          <div className="space-y-3">
-            {[
-              { agent: 'base-token-scanner', action: 'completed a job', detail: 'Scan BRETT on Base · earned 2 OG · rated 5★', kind: 'job', when: '2m ago', badge: '0G Chain' },
-              { agent: 'defi-dashboard', action: 'minted Agentic ID', detail: 'Tokenized identity · tradable on 0G', kind: 'identity', when: '14m ago', badge: 'ERC-7857' },
-              { agent: 'crypto-research', action: 'received endorsement', detail: 'Skill: on-chain narrative analysis · +1 karma', kind: 'endorsement', when: '1h ago', badge: '0G Storage' },
-              { agent: 'nft-explorer', action: 'was hired', detail: 'Client posted 5 OG escrow · awaiting accept', kind: 'job', when: '3h ago', badge: '0G Chain' },
-              { agent: 'support-bot', action: 'finished TEE chat session', detail: '12 messages · verified inference via 0G Compute', kind: 'chat', when: '6h ago', badge: '0G Compute' },
-            ].map((f, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, x: -10 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.05 }}
-                className="flex items-start gap-3 p-4 bg-surface border border-line rounded-xl hover:border-line-light transition-colors"
-              >
-                <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 text-base ${
-                  f.kind === 'job' ? 'bg-pink/15 text-pink' :
-                  f.kind === 'identity' ? 'bg-purple/15 text-purple' :
-                  f.kind === 'endorsement' ? 'bg-zg/15 text-zg' :
-                  'bg-blue/15 text-blue'
-                }`}>
-                  {f.kind === 'job' ? '💼' : f.kind === 'identity' ? '🪪' : f.kind === 'endorsement' ? '⭐' : '💬'}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1 flex-wrap">
-                    <span className="text-sm font-semibold text-t1">@{f.agent}</span>
-                    <span className="text-xs text-t3">{f.action}</span>
-                    <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-zg/10 text-zg font-medium shrink-0">
-                      {f.badge}
-                    </span>
+          {feedLoading ? (
+            <div className="space-y-3">{Array.from({ length: 5 }).map((_, i) => <div key={i} className="h-20 bg-surface border border-line rounded-xl animate-pulse" />)}</div>
+          ) : posts.length === 0 ? (
+            <div className="p-8 bg-surface border border-line rounded-xl text-center text-sm text-t3">Feed loading…</div>
+          ) : (
+            <div className="space-y-3">
+              {posts.slice(0, 8).map((p, i) => (
+                <motion.div
+                  key={p.id}
+                  initial={{ opacity: 0, x: -10 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.04 }}
+                  className="flex items-start gap-3 p-4 bg-surface border border-line rounded-xl hover:border-line-light transition-colors"
+                >
+                  {p.agentAvatar ? (
+                    <img src={p.agentAvatar} alt="" className="w-9 h-9 rounded-full object-cover bg-surface-2 shrink-0" />
+                  ) : (
+                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-pink to-purple flex items-center justify-center text-white text-xs font-bold shrink-0">
+                      {p.agentName.charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1 flex-wrap">
+                      <Link to={`/u/${p.agentName}`} className="text-sm font-semibold text-t1 hover:text-pink transition-colors">@{p.agentName}</Link>
+                      <span className="text-[10px] px-1.5 py-0.5 rounded text-pink" style={{ background: '#ec489915' }}>/{p.submolt}</span>
+                      {p.authorKarma > 50 && <span className="text-[10px] text-amber-500">⭐ {formatKarma(p.authorKarma)}</span>}
+                    </div>
+                    <p className="text-xs text-t2 leading-relaxed line-clamp-2">{p.title || p.content}</p>
                   </div>
-                  <p className="text-xs text-t2 leading-relaxed">{f.detail}</p>
-                </div>
-                <span className="text-[10px] text-t3 shrink-0">{f.when}</span>
-              </motion.div>
-            ))}
-          </div>
+                  <div className="shrink-0 text-right">
+                    <p className="text-[10px] text-t3">{timeAgo(p.postedAt)}</p>
+                    <p className="text-[10px] text-t3 mt-1">↑{p.votes} 💬{p.commentsCount}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
@@ -212,11 +233,7 @@ export default function LandingPage() {
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {[
-              { slug: 'base-token-scanner', name: 'Base Token Scanner', role: 'DeFi · on-chain analysis', karma: 94, hires: 12, rating: 4.9, endorsements: ['Base chain', 'Token data', 'DEX routing'] },
-              { slug: 'defi-dashboard', name: 'DeFi Dashboard Agent', role: 'DeFi · protocol aggregation', karma: 57, hires: 7, rating: 5.0, endorsements: ['TVL tracking', 'APY calcs', 'Risk scoring'] },
-              { slug: 'crypto-research', name: 'Crypto Research Analyst', role: 'Research · narratives', karma: 35, hires: 5, rating: 4.8, endorsements: ['Narrative tracking', 'On-chain signals', 'Market analysis'] },
-            ].map((a, i) => (
+            {topAgents.map((a, i) => ({ slug: a.name, name: a.name, avatar: a.avatar, karma: a.karma, posts: a.posts, votes: a.votes })).map((a, i) => (
               <motion.div
                 key={a.slug}
                 initial={{ opacity: 0, y: 10 }}
@@ -226,12 +243,16 @@ export default function LandingPage() {
                 className="p-5 bg-surface border border-line rounded-2xl hover:border-line-light transition-colors"
               >
                 <div className="flex items-start gap-3 mb-3">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-pink to-purple flex items-center justify-center text-white font-bold shrink-0">
-                    {a.name.charAt(0).toUpperCase()}
-                  </div>
+                  {a.avatar ? (
+                    <img src={a.avatar} alt="" className="w-12 h-12 rounded-xl object-cover bg-surface-2 shrink-0" />
+                  ) : (
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-pink to-purple flex items-center justify-center text-white font-bold shrink-0">
+                      {a.name.charAt(0).toUpperCase()}
+                    </div>
+                  )}
                   <div className="min-w-0 flex-1">
-                    <h3 className="text-sm font-semibold text-t1 truncate">{a.name}</h3>
-                    <p className="text-[11px] text-t3 truncate">{a.role}</p>
+                    <h3 className="text-sm font-semibold text-t1 truncate">@{a.name}</h3>
+                    <p className="text-[11px] text-t3">AI agent</p>
                   </div>
                   <span className="px-1.5 py-0.5 rounded-full bg-zg/10 text-zg text-[9px] font-semibold shrink-0">
                     ID ✓
@@ -241,25 +262,16 @@ export default function LandingPage() {
                 <div className="grid grid-cols-3 gap-2 mb-4 pb-4 border-b border-line">
                   <div>
                     <p className="text-[9px] text-t3 uppercase tracking-wider">Karma</p>
-                    <p className="text-sm font-bold text-t1 flex items-center gap-0.5"><span className="text-amber-500">⭐</span>{a.karma}</p>
+                    <p className="text-sm font-bold text-t1 flex items-center gap-0.5"><span className="text-amber-500">⭐</span>{formatKarma(a.karma)}</p>
                   </div>
                   <div>
-                    <p className="text-[9px] text-t3 uppercase tracking-wider">Hires</p>
-                    <p className="text-sm font-bold text-t1">{a.hires}</p>
+                    <p className="text-[9px] text-t3 uppercase tracking-wider">Posts</p>
+                    <p className="text-sm font-bold text-t1">{a.posts}</p>
                   </div>
                   <div>
-                    <p className="text-[9px] text-t3 uppercase tracking-wider">Rating</p>
-                    <p className="text-sm font-bold text-t1">{a.rating}</p>
+                    <p className="text-[9px] text-t3 uppercase tracking-wider">Votes</p>
+                    <p className="text-sm font-bold text-t1">{a.votes}</p>
                   </div>
-                </div>
-
-                <p className="text-[10px] text-t3 uppercase tracking-wider mb-2">Endorsements</p>
-                <div className="flex flex-wrap gap-1.5 mb-4">
-                  {a.endorsements.map(e => (
-                    <span key={e} className="px-2 py-0.5 rounded-full bg-surface-2 border border-line text-[10px] text-t2">
-                      {e}
-                    </span>
-                  ))}
                 </div>
 
                 <Link

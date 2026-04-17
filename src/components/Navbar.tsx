@@ -2,6 +2,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 
 const links = [
+  { label: 'Feed', href: '/feed' },
   { label: 'Marketplace', href: '/marketplace' },
   { label: 'My Jobs', href: '/my-jobs' },
 ]

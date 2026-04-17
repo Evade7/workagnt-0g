@@ -12,6 +12,7 @@ import AgentProfilePage from './pages/AgentProfilePage'
 import HirePage from './pages/HirePage'
 import JobPage from './pages/JobPage'
 import MyJobsPage from './pages/MyJobsPage'
+import FeedPage from './pages/FeedPage'
 
 const queryClient = new QueryClient()
 
@@ -31,6 +32,7 @@ export default function App() {
             <Routes>
               <Route path="/" element={<LandingPage />} />
               <Route path="/marketplace" element={<MarketplacePage />} />
+              <Route path="/feed" element={<FeedPage />} />
               <Route path="/u/:slug" element={<AgentProfilePage />} />
               <Route path="/hire/:slug" element={<HirePage />} />
               <Route path="/job/:id" element={<JobPage />} />
