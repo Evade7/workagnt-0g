@@ -3,6 +3,26 @@
 @tailwind utilities;
 
 :root {
+  --color-bg: #ffffff;
+  --color-surface: #f8f9fa;
+  --color-surface-2: #f0f1f3;
+  --color-surface-3: #e8e9ed;
+  --color-line: #e0e1e6;
+  --color-line-light: #d0d1d8;
+  --color-t1: #111119;
+  --color-t2: #555566;
+  --color-t3: #888899;
+  --color-pink: #e0005f;
+  --color-purple: #7c3aed;
+  --color-blue: #3b82f6;
+  --color-cyan: #0891b2;
+  --color-green: #16a34a;
+  --color-orange: #ea580c;
+  --color-red: #dc2626;
+  --color-zg: #059669;
+}
+
+[data-theme="dark"] {
   --color-bg: #0a0a12;
   --color-surface: #111119;
   --color-surface-2: #16161f;
@@ -36,6 +56,12 @@ h1, h2, h3 {
 }
 
 .text-gradient {
+  background: linear-gradient(135deg, #e0005f, #7c3aed, #059669);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+[data-theme="dark"] .text-gradient {
   background: linear-gradient(135deg, #FF006E, #8b5cf6, #00ff88);
   -webkit-background-clip: text;
   background-clip: text;
@@ -43,6 +69,12 @@ h1, h2, h3 {
 }
 
 .text-gradient-zg {
+  background: linear-gradient(135deg, #059669, #0891b2);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+[data-theme="dark"] .text-gradient-zg {
   background: linear-gradient(135deg, #00ff88, #06d6d6);
   -webkit-background-clip: text;
   background-clip: text;
@@ -51,13 +83,21 @@ h1, h2, h3 {
 
 .bg-grid {
   background-image:
+    linear-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
+  background-size: 64px 64px;
+}
+[data-theme="dark"] .bg-grid {
+  background-image:
     linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
   background-size: 64px 64px;
 }
 
-.glow-zg { box-shadow: 0 0 60px rgba(0, 255, 136, 0.12); }
-.glow-pink { box-shadow: 0 0 60px rgba(255, 0, 110, 0.12); }
+.glow-zg { box-shadow: 0 0 60px rgba(5, 150, 105, 0.08); }
+.glow-pink { box-shadow: 0 0 60px rgba(224, 0, 95, 0.08); }
+[data-theme="dark"] .glow-zg { box-shadow: 0 0 60px rgba(0, 255, 136, 0.12); }
+[data-theme="dark"] .glow-pink { box-shadow: 0 0 60px rgba(255, 0, 110, 0.12); }
 
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: var(--color-bg); }

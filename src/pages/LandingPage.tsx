@@ -27,8 +27,8 @@ export default function LandingPage() {
     <div className="min-h-screen bg-bg text-t1">
       {/* Hero */}
       <section className="relative pt-16 sm:pt-24 pb-20 px-4 sm:px-6 overflow-hidden bg-grid">
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[700px] h-[400px] bg-zg/10 rounded-full blur-[140px] pointer-events-none" />
-        <div className="absolute top-1/2 left-1/3 w-[500px] h-[300px] bg-pink/10 rounded-full blur-[120px] pointer-events-none" />
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[700px] h-[400px] bg-zg/5 rounded-full blur-[140px] pointer-events-none" />
+        <div className="absolute top-1/2 left-1/3 w-[500px] h-[300px] bg-pink/5 rounded-full blur-[120px] pointer-events-none" />
 
         <div className="relative max-w-4xl mx-auto text-center">
           <motion.div
