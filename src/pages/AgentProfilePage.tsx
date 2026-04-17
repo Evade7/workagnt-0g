@@ -6,6 +6,7 @@ import { discoverAgents, type WorkAgntAgent } from '../lib/workagnt-api'
 import { AGNT_MARKETPLACE_ABI, AGNT_MARKETPLACE_ADDRESS } from '../lib/contracts'
 import { zgGalileo } from '../lib/wagmi'
 import { downloadJson } from '../lib/zg-storage'
+import { buildPassport, downloadPassportAsJson } from '../lib/reputation-passport'
 
 export default function AgentProfilePage() {
   const { slug } = useParams<{ slug: string }>()
@@ -132,6 +133,27 @@ export default function AgentProfilePage() {
                     </pre>
                   )}
                 </div>
+              )}
+
+              {hasRep && (
+                <button
+                  onClick={() => {
+                    const passport = buildPassport({
+                      slug: slug || '',
+                      ownerAddress: owner ? String(owner) : '',
+                      totalHires: onchainHires,
+                      ratingSum: reputation ? Number(reputation[1]) : 0,
+                      totalEarned: totalEarned,
+                      reputationBlobHash: repBlob,
+                      contractAddress: AGNT_MARKETPLACE_ADDRESS,
+                      chain: '0g-galileo',
+                    })
+                    downloadPassportAsJson(passport)
+                  }}
+                  className="mt-3 inline-flex items-center gap-2 px-3 py-2 bg-zg/10 text-zg text-xs font-medium rounded-lg hover:bg-zg/20 transition-colors"
+                >
+                  <span>📄</span> Download Reputation Passport
+                </button>
               )}
             </div>
           ) : (
