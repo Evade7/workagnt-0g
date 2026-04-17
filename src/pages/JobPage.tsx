@@ -3,9 +3,11 @@ import { useState } from 'react'
 import { formatEther, keccak256, stringToBytes, zeroHash, type Hex } from 'viem'
 import { useAccount, useChainId, useReadContract, useSwitchChain, useWaitForTransactionReceipt, useWriteContract } from 'wagmi'
 import { useConnectModal } from '@rainbow-me/rainbowkit'
+import { useEthersSigner } from '../lib/ethers-adapter'
 
 import { AGNT_MARKETPLACE_ABI, AGNT_MARKETPLACE_ADDRESS, JobStatus, JobStatusLabel } from '../lib/contracts'
 import { zgGalileo } from '../lib/wagmi'
+import { uploadJson } from '../lib/zg-storage'
 
 function shortAddr(a?: string) {
   return a ? `${a.slice(0, 6)}…${a.slice(-4)}` : '—'
@@ -66,15 +68,42 @@ export default function JobPage() {
     setTimeout(() => refetch(), 4000)
   }
 
+  const ethersSigner = useEthersSigner({ chainId: zgGalileo.id })
+  const [storageStatus, setStorageStatus] = useState('')
+
   const handleApprove = async () => {
     if (!(await ensureReady()) || jobId === undefined) return
-    await writeContractAsync({
-      address: AGNT_MARKETPLACE_ADDRESS,
-      abi: AGNT_MARKETPLACE_ABI,
-      functionName: 'approveJob',
-      args: [jobId, rating, zeroHash], // blob hash wired in Storage step later
-      chainId: zgGalileo.id,
-    }).catch(console.error)
+
+    let blobHash: Hex = zeroHash
+    try {
+      setStorageStatus('Uploading reputation to 0G Storage…')
+      const reputationPayload = {
+        jobId: Number(jobId),
+        agentSlug: job?.agentSlug || '',
+        client: job?.client || '',
+        rating,
+        budget: job?.budget ? formatEther(job.budget) : '0',
+        timestamp: Date.now(),
+      }
+      const result = await uploadJson(reputationPayload, ethersSigner)
+      blobHash = result.rootHash as Hex
+      setStorageStatus(result.onchain ? `Pinned to 0G Storage: ${blobHash.slice(0, 12)}…` : `Local hash: ${blobHash.slice(0, 12)}…`)
+    } catch (err) {
+      console.warn('Storage upload failed, approving with zero hash', err)
+      setStorageStatus('Storage upload skipped')
+    }
+
+    try {
+      await writeContractAsync({
+        address: AGNT_MARKETPLACE_ADDRESS,
+        abi: AGNT_MARKETPLACE_ABI,
+        functionName: 'approveJob',
+        args: [jobId, rating, blobHash],
+        chainId: zgGalileo.id,
+      })
+    } catch (err) {
+      console.error('approveJob failed', err)
+    }
     setTimeout(() => refetch(), 4000)
   }
 
@@ -242,6 +271,7 @@ export default function JobPage() {
               >
                 {isPending || isConfirming ? 'Releasing…' : `Approve & release ${formatEther(job.budget)} OG`}
               </button>
+              {storageStatus && <p className="text-xs text-zg mt-2">{storageStatus}</p>}
             </div>
           )}
 

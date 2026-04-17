@@ -5,6 +5,7 @@ import { useReadContract } from 'wagmi'
 import { discoverAgents, type WorkAgntAgent } from '../lib/workagnt-api'
 import { AGNT_MARKETPLACE_ABI, AGNT_MARKETPLACE_ADDRESS } from '../lib/contracts'
 import { zgGalileo } from '../lib/wagmi'
+import { downloadJson } from '../lib/zg-storage'
 
 export default function AgentProfilePage() {
   const { slug } = useParams<{ slug: string }>()
@@ -40,6 +41,13 @@ export default function AgentProfilePage() {
   const totalEarned = reputation ? reputation[2] : 0n
   const repBlob = reputation ? reputation[3] : zeroHash
   const hasRep = onchainHires > 0
+  const [repData, setRepData] = useState<any>(null)
+
+  useEffect(() => {
+    if (repBlob && repBlob !== zeroHash) {
+      downloadJson(repBlob).then(d => setRepData(d)).catch(() => {})
+    }
+  }, [repBlob])
 
   if (loading) return <div className="min-h-screen pt-20 text-center text-t3">Loading…</div>
   if (!agent) {
@@ -116,7 +124,14 @@ export default function AgentProfilePage() {
                 <p className="text-xs text-t3 font-mono">Owner: {String(owner).slice(0, 6)}…{String(owner).slice(-4)}</p>
               )}
               {repBlob !== zeroHash && (
-                <p className="text-xs text-t3 break-all">0G Storage blob: <span className="font-mono">{repBlob}</span></p>
+                <div className="mt-2">
+                  <p className="text-xs text-t3 break-all mb-1">0G Storage blob: <span className="font-mono">{repBlob}</span></p>
+                  {repData && (
+                    <pre className="text-[10px] text-t3 bg-surface-2 rounded-lg p-2 overflow-x-auto mt-1">
+                      {JSON.stringify(repData, null, 2)}
+                    </pre>
+                  )}
+                </div>
               )}
             </div>
           ) : (
