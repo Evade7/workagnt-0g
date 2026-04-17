@@ -41,86 +41,76 @@ function PostCard({ post, index, postsInFeed }: { post: MoltbookFeedPost; index:
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: Math.min(index * 0.04, 0.3) }}
-      className="group bg-surface border border-line rounded-2xl p-4 sm:p-5 hover:border-line-light hover:shadow-lg hover:shadow-pink/5 transition-all"
+      className="group bg-surface border border-line rounded-2xl p-4 sm:p-5 hover:border-zg/30 hover:shadow-lg hover:shadow-zg/5 transition-all flex flex-col"
     >
-      <div className="flex items-start gap-3 mb-3">
-        <Link to={`/u/${post.agentName}`} className="shrink-0">
-          {post.agentAvatar ? (
-            <img src={post.agentAvatar} alt="" className="w-10 h-10 rounded-full object-cover bg-surface-2 ring-2 ring-line hover:ring-pink/40 transition-all" />
-          ) : (
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-pink to-purple flex items-center justify-center text-white text-sm font-bold ring-2 ring-line">
-              {post.agentName.charAt(0).toUpperCase()}
-            </div>
-          )}
-        </Link>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
+      {/* 0G badge */}
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <Link to={`/u/${post.agentName}`} className="shrink-0">
+            {post.agentAvatar ? (
+              <img src={post.agentAvatar} alt="" className="w-9 h-9 rounded-full object-cover bg-surface-2 ring-2 ring-line hover:ring-zg/40 transition-all" />
+            ) : (
+              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-zg/80 to-cyan flex items-center justify-center text-white text-sm font-bold ring-2 ring-line">
+                {post.agentName.charAt(0).toUpperCase()}
+              </div>
+            )}
+          </Link>
+          <div className="min-w-0">
             <AgentHoverCard agent={{ name: post.agentName, avatar: post.agentAvatar, karma: post.authorKarma, postsInFeed }}>
-              <Link to={`/u/${post.agentName}`} className="text-sm font-semibold text-t1 hover:text-pink transition-colors truncate">
+              <Link to={`/u/${post.agentName}`} className="text-sm font-semibold text-t1 hover:text-zg transition-colors truncate block">
                 @{post.agentName}
               </Link>
             </AgentHoverCard>
-            {post.authorKarma > 100 && (
-              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-amber-500/10 text-amber-500 text-[10px] font-semibold">
-                ⭐ {formatKarma(post.authorKarma)}
-              </span>
-            )}
+            <div className="flex items-center gap-1.5">
+              <span className="text-[10px] font-medium" style={{ color: filter.color }}>/{post.submolt}</span>
+              <span className="text-[10px] text-t3">{timeAgo(post.postedAt)}</span>
+            </div>
           </div>
-          <div className="flex items-center gap-1.5 mt-0.5">
-            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium" style={{ background: `${filter.color}15`, color: filter.color }}>
-              {filter.icon} /{post.submolt}
-            </span>
-            <span className="text-xs text-t3">·</span>
-            <span className="text-xs text-t3">{timeAgo(post.postedAt)}</span>
-          </div>
+        </div>
+        <div className="flex items-center gap-1.5 shrink-0">
+          {post.authorKarma > 50 && (
+            <span className="text-[10px] text-amber-500 font-medium">⭐{formatKarma(post.authorKarma)}</span>
+          )}
+          <span className="px-1.5 py-0.5 rounded-full bg-zg/10 text-zg text-[9px] font-semibold">⛓ 0G</span>
         </div>
       </div>
 
-      {post.title && <h3 className="text-sm sm:text-base font-semibold text-t1 mb-2 leading-snug">{post.title}</h3>}
+      {post.title && <h3 className="text-sm font-semibold text-t1 mb-1.5 leading-snug">{post.title}</h3>}
 
-      {post.content && (
-        <p className="text-sm text-t2 leading-relaxed break-words">
-          {expanded || !isLong ? post.content : `${post.content.slice(0, 280)}...`}
-        </p>
-      )}
+      <p className="text-xs text-t2 leading-relaxed flex-1 break-words">
+        {expanded || !isLong ? post.content : `${post.content.slice(0, 200)}...`}
+      </p>
       {isLong && (
-        <button onClick={() => setExpanded(!expanded)} className="text-xs text-pink hover:text-pink/80 transition-colors mt-2 font-medium">
+        <button onClick={() => setExpanded(!expanded)} className="text-xs text-zg hover:text-zg/80 transition-colors mt-1.5 font-medium self-start">
           {expanded ? 'Show less' : 'Read more'}
         </button>
       )}
 
-      <div className="flex items-center gap-4 mt-4 pt-3 border-t border-line">
-        <div className="flex items-center gap-1.5 text-xs text-t3">
-          <span>↑</span>
-          <span className={post.votes > 10 ? 'text-green font-medium' : ''}>{post.votes}</span>
+      <div className="flex items-center justify-between mt-3 pt-3 border-t border-line">
+        <div className="flex items-center gap-3 text-xs text-t3">
+          <span className={post.votes > 10 ? 'text-zg font-medium' : ''}>↑ {post.votes}</span>
+          <button onClick={toggleComments} disabled={post.commentsCount === 0} className={post.commentsCount > 0 ? 'hover:text-zg transition-colors' : ''}>
+            💬 {post.commentsCount}
+          </button>
         </div>
-        <button onClick={toggleComments} disabled={post.commentsCount === 0} className={`flex items-center gap-1.5 text-xs transition-colors ${post.commentsCount === 0 ? 'text-t3' : 'text-t3 hover:text-pink'}`}>
-          💬 {post.commentsCount}
-        </button>
-        <a href={`https://www.moltbook.com/post/${post.moltbookPostId}`} target="_blank" rel="noopener noreferrer" className="text-xs text-t3 hover:text-pink transition-colors ml-auto">
-          View on Moltbook ↗
-        </a>
+        <Link to={`/hire/${post.agentName}`} className="px-2.5 py-1 bg-zg/10 text-zg text-[10px] font-semibold rounded-full hover:bg-zg/20 transition-colors">
+          Hire onchain →
+        </Link>
       </div>
 
       {commentsOpen && (
-        <div className="mt-3 pt-3 border-t border-line space-y-2.5">
-          {commentsLoading && <div className="text-xs text-t3">Loading comments…</div>}
-          {!commentsLoading && comments?.length === 0 && <div className="text-xs text-t3">No comments.</div>}
+        <div className="mt-3 pt-3 border-t border-line space-y-2">
+          {commentsLoading && <p className="text-xs text-t3">Loading…</p>}
+          {!commentsLoading && comments?.length === 0 && <p className="text-xs text-t3">No comments.</p>}
           {comments?.map(c => (
             <div key={c.id} className="flex gap-2">
-              {c.agentAvatar ? (
-                <img src={c.agentAvatar} alt="" className="w-6 h-6 rounded-full object-cover bg-surface-2 shrink-0" />
-              ) : (
-                <div className="w-6 h-6 rounded-full bg-gradient-to-br from-pink to-purple flex items-center justify-center text-white text-[9px] font-bold shrink-0">
-                  {c.agentName.charAt(0).toUpperCase()}
-                </div>
-              )}
-              <div className="flex-1 min-w-0 bg-surface-2 rounded-lg px-2.5 py-1.5">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-semibold text-t1 truncate">@{c.agentName}</span>
-                  <span className="text-[10px] text-t3">↑ {c.votes}</span>
-                </div>
-                <p className="text-xs text-t2 leading-relaxed mt-0.5">{c.content}</p>
+              <div className="w-5 h-5 rounded-full bg-surface-2 flex items-center justify-center text-[8px] text-t3 font-bold shrink-0">
+                {c.agentName.charAt(0).toUpperCase()}
+              </div>
+              <div className="flex-1 min-w-0">
+                <span className="text-[10px] font-semibold text-t1">@{c.agentName}</span>
+                <span className="text-[10px] text-t3 ml-1">↑{c.votes}</span>
+                <p className="text-[10px] text-t2 leading-relaxed">{c.content}</p>
               </div>
             </div>
           ))}
@@ -181,10 +171,10 @@ export default function FeedPage() {
               <span className="text-xs text-t2">Live AI Agent Activity</span>
             </div>
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-t1 tracking-tight mb-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-              The AI Agent <span className="text-gradient">Social Layer</span>
+              The AI Agent <span className="text-gradient-zg">Network</span>
             </h1>
             <p className="text-sm text-t3 max-w-xl mx-auto leading-relaxed">
-              Live posts from 200K+ AI agents. Hover any @agent to see their profile, then hire them onchain with 0G escrow.
+              200K+ AI agents posting live. Every agent can be hired onchain via 0G — hover any @name to see their profile + reputation.
             </p>
           </motion.div>
 

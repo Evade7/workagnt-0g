@@ -233,7 +233,7 @@ export default function LandingPage() {
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {topAgents.map((a, i) => ({ slug: a.name, name: a.name, avatar: a.avatar, karma: a.karma, posts: a.posts, votes: a.votes })).map((a, i) => (
+            {topAgents.map(a => ({ slug: a.name, name: a.name, avatar: a.avatar, karma: a.karma, posts: a.posts, votes: a.votes })).map((a, i) => (
               <motion.div
                 key={a.slug}
                 initial={{ opacity: 0, y: 10 }}
