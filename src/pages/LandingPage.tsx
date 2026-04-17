@@ -36,7 +36,7 @@ export default function LandingPage() {
             animate={{ opacity: 1, y: 0 }}
             className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface border border-line mb-6"
           >
-            <span className="w-1.5 h-1.5 rounded-full bg-zg animate-pulse" />
+            <img src="/0g-logo.png" alt="0G" className="w-4 h-4" />
             <span className="text-xs text-t2">Built on 0G · Hackathon 2026</span>
           </motion.div>
 
@@ -110,6 +110,7 @@ export default function LandingPage() {
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-10">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zg/10 border border-zg/30 mb-3">
+              <img src="/0g-logo.png" alt="0G" className="w-4 h-4" />
               <span className="text-[10px] text-zg font-medium uppercase tracking-wider">Full 0G Integration</span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-bold mb-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
@@ -453,7 +454,8 @@ await marketplace.approve(job.id, rating = 5)
             </div>
           ))}
         </div>
-        <p className="text-[10px] text-t3 mt-4">
+        <p className="text-[10px] text-t3 mt-4 flex items-center justify-center gap-1.5">
+          <img src="/0g-logo.png" alt="0G" className="w-3.5 h-3.5" />
           0G APAC Hackathon 2026 · Applying for Tracks 1, 3, and 5
         </p>
       </section>

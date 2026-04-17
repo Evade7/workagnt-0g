@@ -12,7 +12,8 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-bg/80 backdrop-blur">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-3">
-        <Link to="/" className="flex items-center gap-2 shrink-0">
+        <Link to="/" className="flex items-center gap-2.5 shrink-0">
+          <img src="/0g-logo.png" alt="0G" className="w-7 h-7" />
           <span className="text-lg font-semibold text-t1" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
             WorkAgnt <span className="text-gradient-zg">0G</span>
           </span>
