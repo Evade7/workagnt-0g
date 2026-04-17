@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { WagmiProvider } from 'wagmi'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { RainbowKitProvider, darkTheme } from '@rainbow-me/rainbowkit'
+import { RainbowKitProvider, lightTheme } from '@rainbow-me/rainbowkit'
 import '@rainbow-me/rainbowkit/styles.css'
 
 import { wagmiConfig } from './lib/wagmi'
@@ -21,10 +21,11 @@ export default function App() {
     <WagmiProvider config={wagmiConfig}>
       <QueryClientProvider client={queryClient}>
         <RainbowKitProvider
-          theme={darkTheme({
-            accentColor: '#FF006E',
+          theme={lightTheme({
+            accentColor: '#059669',
             accentColorForeground: '#ffffff',
             borderRadius: 'medium',
+            fontStack: 'system',
           })}
         >
           <BrowserRouter>
