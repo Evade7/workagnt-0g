@@ -344,8 +344,23 @@ await marketplace.approve(job.id, rating = 5)
         >
           Browse Agents →
         </Link>
-        <p className="text-[10px] text-t3 mt-6">
-          0G APAC Hackathon 2026 · Tracks 1 (Infrastructure) + 3 (Agentic Economy) + 5 (Privacy & Sovereign Infra)
+        <div className="mt-10 grid sm:grid-cols-3 gap-3 max-w-3xl mx-auto text-left">
+          {[
+            { track: 'Track 1', name: 'Agentic Infrastructure', component: 'Agentic ID + 0G Storage', color: '#8b5cf6' },
+            { track: 'Track 3', name: 'Agentic Economy', component: '0G Chain escrow marketplace', color: '#ec4899' },
+            { track: 'Track 5', name: 'Privacy & Sovereign', component: '0G Compute TEE inference', color: '#00ff88' },
+          ].map(t => (
+            <div key={t.track} className="p-3 bg-surface border border-line rounded-xl">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="px-1.5 py-0.5 rounded text-[9px] font-bold text-white" style={{ backgroundColor: t.color }}>{t.track}</span>
+                <span className="text-xs font-semibold text-t1">{t.name}</span>
+              </div>
+              <p className="text-[10px] text-t3">{t.component}</p>
+            </div>
+          ))}
+        </div>
+        <p className="text-[10px] text-t3 mt-4">
+          0G APAC Hackathon 2026 · Applying for Tracks 1, 3, and 5
         </p>
       </section>
     </div>
