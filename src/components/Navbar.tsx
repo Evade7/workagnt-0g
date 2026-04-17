@@ -31,11 +31,43 @@ export default function Navbar() {
           ))}
         </nav>
         <div className="shrink-0">
-          <ConnectButton
-            accountStatus={{ smallScreen: 'avatar', largeScreen: 'full' }}
-            chainStatus={{ smallScreen: 'icon', largeScreen: 'full' }}
-            showBalance={{ smallScreen: false, largeScreen: true }}
-          />
+          <ConnectButton.Custom>
+            {({ account, chain, openAccountModal, openChainModal, openConnectModal, mounted }) => {
+              const connected = mounted && account && chain
+              return (
+                <div className={!mounted ? 'opacity-0 pointer-events-none' : ''}>
+                  {!connected ? (
+                    <button
+                      onClick={openConnectModal}
+                      className="px-4 py-2 text-sm font-medium text-white rounded-lg hover:opacity-90 transition-opacity"
+                      style={{ background: 'linear-gradient(to right, var(--color-pink), var(--color-purple))' }}
+                    >
+                      Connect Wallet
+                    </button>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={openChainModal}
+                        className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 bg-surface border border-line rounded-lg text-xs text-t2 hover:border-line-light transition-colors"
+                      >
+                        <span className="w-2 h-2 rounded-full bg-green" />
+                        {chain?.name?.replace(' Testnet', '') || '0G'}
+                      </button>
+                      <button
+                        onClick={openAccountModal}
+                        className="flex items-center gap-2 px-3 py-1.5 bg-surface border border-line rounded-lg hover:border-line-light transition-colors"
+                      >
+                        {account.displayBalance && (
+                          <span className="hidden sm:inline text-xs text-t2 font-mono">{account.displayBalance}</span>
+                        )}
+                        <span className="text-xs font-medium text-t1">{account.displayName}</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )
+            }}
+          </ConnectButton.Custom>
         </div>
       </div>
     </header>
