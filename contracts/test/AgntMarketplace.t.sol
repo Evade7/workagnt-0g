@@ -121,4 +121,45 @@ contract AgntMarketplaceTest is Test {
         vm.prank(client);
         mkt.postJob("x", "");
     }
+
+    function test_RegisterAgent() public {
+        vm.prank(agentOwner);
+        uint256 id = mkt.registerAgent("my-bot", "My Bot", "I scan tokens", "defi");
+        assertEq(id, 1);
+        assertEq(mkt.agentCount(), 1);
+        assertEq(mkt.agentOwnerOf("my-bot"), agentOwner);
+        assertEq(mkt.agentIdBySlug("my-bot"), 1);
+        AgntMarketplace.AgentProfile memory p = mkt.getAgent(1);
+        assertEq(p.owner, agentOwner);
+        assertEq(keccak256(bytes(p.slug)), keccak256(bytes("my-bot")));
+    }
+
+    function testRevert_DuplicateSlug() public {
+        vm.prank(agentOwner);
+        mkt.registerAgent("same", "A", "", "");
+        vm.expectRevert("Slug taken");
+        vm.prank(client);
+        mkt.registerAgent("same", "B", "", "");
+    }
+
+    function test_RegisterThenHire() public {
+        vm.prank(agentOwner);
+        mkt.registerAgent("scanner", "Scanner Bot", "Scans tokens", "defi");
+
+        vm.prank(client);
+        uint256 jobId = mkt.postJob{value: 1 ether}("scanner", "scan BRETT");
+
+        vm.prank(agentOwner);
+        mkt.acceptJob(jobId);
+
+        vm.prank(agentOwner);
+        mkt.completeJob(jobId, keccak256("result"));
+
+        vm.prank(client);
+        mkt.approveJob(jobId, 5, bytes32(0));
+
+        assertEq(mkt.agentOwnerOf("scanner"), agentOwner);
+        (uint64 hires,,,,) = mkt.getAgentReputation("scanner");
+        assertEq(hires, 1);
+    }
 }

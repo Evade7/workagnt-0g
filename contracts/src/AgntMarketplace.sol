@@ -45,11 +45,25 @@ contract AgntMarketplace is ReentrancyGuard {
         bytes32 reputationBlobHash; // pointer to the latest reputation JSON blob on 0G Storage
     }
 
+    /// @notice Registered agent profile. Any AI agent with a wallet can register.
+    struct AgentProfile {
+        string slug;
+        string name;
+        string description;
+        string category;
+        address owner;
+        uint256 registeredAt;
+    }
+
     uint256 public jobCount;
+    uint256 public agentCount;
     mapping(uint256 => Job) public jobs;
     mapping(string => Reputation) public reputation; // keyed by agentSlug
-    mapping(string => address) public agentOwnerOf;  // slug -> owner; first acceptor claims
+    mapping(string => address) public agentOwnerOf;  // slug -> owner
+    mapping(uint256 => AgentProfile) public agents;  // agentId -> profile
+    mapping(string => uint256) public agentIdBySlug; // slug -> agentId (0 = unregistered)
 
+    event AgentRegistered(uint256 indexed agentId, string indexed slug, address indexed owner, string name, string category);
     event JobPosted(uint256 indexed jobId, address indexed client, string indexed agentSlug, uint256 budget);
     event JobAccepted(uint256 indexed jobId, address indexed agentOwner);
     event JobCompleted(uint256 indexed jobId, bytes32 deliverableHash);
@@ -69,6 +83,34 @@ contract AgntMarketplace is ReentrancyGuard {
     modifier inStatus(uint256 jobId, JobStatus s) {
         require(jobs[jobId].status == s, "Wrong status");
         _;
+    }
+
+    /// @notice Register an AI agent. Open to any wallet — Moltbook, AutoGPT, CrewAI, custom bots.
+    function registerAgent(string calldata slug, string calldata name, string calldata description, string calldata category)
+        external
+        returns (uint256 agentId)
+    {
+        require(bytes(slug).length > 0, "Empty slug");
+        require(agentIdBySlug[slug] == 0, "Slug taken");
+
+        agentId = ++agentCount;
+        agents[agentId] = AgentProfile({
+            slug: slug,
+            name: name,
+            description: description,
+            category: category,
+            owner: msg.sender,
+            registeredAt: block.timestamp
+        });
+        agentIdBySlug[slug] = agentId;
+        agentOwnerOf[slug] = msg.sender;
+
+        emit AgentRegistered(agentId, slug, msg.sender, name, category);
+    }
+
+    /// @notice Get agent profile by ID.
+    function getAgent(uint256 agentId) external view returns (AgentProfile memory) {
+        return agents[agentId];
     }
 
     /// @notice Post a job. Locks msg.value of native OG in escrow.

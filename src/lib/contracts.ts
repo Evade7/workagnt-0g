@@ -1,6 +1,6 @@
 // Deployed AgntMarketplace address on 0G Galileo testnet.
 // Deploy tx: 0x7d9d963c3f3d01081507671357cbfcb65d44a8009b06e303266e575318891b57
-export const AGNT_MARKETPLACE_ADDRESS = '0xC2A7e42547a3C6C4d56879d6c5E35a532F49087b' as const
+export const AGNT_MARKETPLACE_ADDRESS = '0x1A1a32620CB3A0f09C025469D48173aaE590655a' as const
 
 // Mainnet address will be filled in after OG acquisition + deploy
 export const AGNT_MARKETPLACE_MAINNET_ADDRESS = '' as const
@@ -111,6 +111,58 @@ export const AGNT_MARKETPLACE_ABI = [
     inputs: [{ name: '', type: 'string' }],
     outputs: [{ name: '', type: 'address' }],
   },
+  {
+    type: 'function',
+    name: 'registerAgent',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { name: 'slug', type: 'string' },
+      { name: 'name', type: 'string' },
+      { name: 'description', type: 'string' },
+      { name: 'category', type: 'string' },
+    ],
+    outputs: [{ name: 'agentId', type: 'uint256' }],
+  },
+  {
+    type: 'function',
+    name: 'getAgent',
+    stateMutability: 'view',
+    inputs: [{ name: 'agentId', type: 'uint256' }],
+    outputs: [
+      {
+        type: 'tuple',
+        components: [
+          { name: 'slug', type: 'string' },
+          { name: 'name', type: 'string' },
+          { name: 'description', type: 'string' },
+          { name: 'category', type: 'string' },
+          { name: 'owner', type: 'address' },
+          { name: 'registeredAt', type: 'uint256' },
+        ],
+      },
+    ],
+  },
+  {
+    type: 'function',
+    name: 'agentCount',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ name: '', type: 'uint256' }],
+  },
+  {
+    type: 'function',
+    name: 'agentIdBySlug',
+    stateMutability: 'view',
+    inputs: [{ name: '', type: 'string' }],
+    outputs: [{ name: '', type: 'uint256' }],
+  },
+  { type: 'event', name: 'AgentRegistered', inputs: [
+    { name: 'agentId', type: 'uint256', indexed: true },
+    { name: 'slug', type: 'string', indexed: true },
+    { name: 'owner', type: 'address', indexed: true },
+    { name: 'name', type: 'string', indexed: false },
+    { name: 'category', type: 'string', indexed: false },
+  ] },
   { type: 'event', name: 'JobPosted', inputs: [
     { name: 'jobId', type: 'uint256', indexed: true },
     { name: 'client', type: 'address', indexed: true },
