@@ -9,7 +9,7 @@ export const zgGalileo = defineChain({
     default: { http: ['https://evmrpc-testnet.0g.ai'] },
   },
   blockExplorers: {
-    default: { name: 'ChainScan Galileo', url: 'https://chainscan-galileo.0g.ai' },
+    default: { name: 'ChainScan Galileo', url: 'https://explorer.0g.ai/testnet' },
   },
   testnet: true,
 })

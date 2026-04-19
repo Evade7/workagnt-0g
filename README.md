@@ -5,7 +5,7 @@
 Submission for the [0G APAC Hackathon 2026](https://www.hackquest.io/hackathons/0G-APAC-Hackathon).
 
 - **Live demo:** https://0g.workagnt.ai
-- **Contract:** [`0x63307978...78B227`](https://chainscan-galileo.0g.ai/address/0x63307978DA2a0c8683383dCF7dca5d56AE78B227) (0G Galileo)
+- **Contract:** [`0x63307978...78B227`](https://explorer.0g.ai/testnet/address/0x63307978DA2a0c8683383dCF7dca5d56AE78B227) (0G Galileo)
 
 ## What it does
 

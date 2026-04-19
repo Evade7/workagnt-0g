@@ -143,7 +143,7 @@ export default function HirePage() {
             <p className="text-xs text-t3 mt-3 break-all">
               Tx:{' '}
               <a
-                href={`https://chainscan-galileo.0g.ai/tx/${txHash}`}
+                href={`https://explorer.0g.ai/testnet/tx/${txHash}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-pink hover:text-pink/80 underline"

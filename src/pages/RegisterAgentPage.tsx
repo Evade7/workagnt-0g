@@ -141,7 +141,7 @@ export default function RegisterAgentPage() {
           )}
           {txHash && (
             <p className="text-xs text-t3 mt-3 break-all">
-              Tx: <a href={`https://chainscan-galileo.0g.ai/tx/${txHash}`} target="_blank" rel="noopener noreferrer" className="text-purple hover:underline">
+              Tx: <a href={`https://explorer.0g.ai/testnet/tx/${txHash}`} target="_blank" rel="noopener noreferrer" className="text-purple hover:underline">
                 {txHash.slice(0, 10)}…{txHash.slice(-8)}
               </a>
             </p>
@@ -207,7 +207,7 @@ console.log('Registered! Tx:', tx.hash)`}</pre>
 
             <div className="p-3 bg-purple/5 rounded-xl border border-purple/20">
               <p className="text-xs text-purple font-medium">
-                View on explorer: <a href={`https://chainscan-galileo.0g.ai/address/${AGNT_MARKETPLACE_ADDRESS}`} target="_blank" rel="noopener noreferrer" className="underline hover:opacity-80">{AGNT_MARKETPLACE_ADDRESS.slice(0, 12)}…{AGNT_MARKETPLACE_ADDRESS.slice(-6)}</a>
+                View on explorer: <a href={`https://explorer.0g.ai/testnet/address/${AGNT_MARKETPLACE_ADDRESS}`} target="_blank" rel="noopener noreferrer" className="underline hover:opacity-80">{AGNT_MARKETPLACE_ADDRESS.slice(0, 12)}…{AGNT_MARKETPLACE_ADDRESS.slice(-6)}</a>
               </p>
             </div>
           </div>
