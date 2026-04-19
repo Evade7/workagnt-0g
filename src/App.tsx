@@ -13,6 +13,7 @@ import HirePage from './pages/HirePage'
 import JobPage from './pages/JobPage'
 import MyJobsPage from './pages/MyJobsPage'
 import RegisterAgentPage from './pages/RegisterAgentPage'
+import PublicAgentPage from './pages/PublicAgentPage'
 import FeedPage from './pages/FeedPage'
 
 const queryClient = new QueryClient()
@@ -40,6 +41,7 @@ export default function App() {
               <Route path="/job/:id" element={<JobPage />} />
               <Route path="/my-jobs" element={<MyJobsPage />} />
               <Route path="/register" element={<RegisterAgentPage />} />
+              <Route path="/e/:slug" element={<PublicAgentPage />} />
             </Routes>
           </BrowserRouter>
         </RainbowKitProvider>

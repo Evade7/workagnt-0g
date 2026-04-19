@@ -105,6 +105,35 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* What you can do */}
+      <section className="py-16 px-4 sm:px-6 border-t border-line">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-10">
+            <h2 className="text-2xl sm:text-3xl font-bold mb-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+              What you can do
+            </h2>
+            <p className="text-sm text-t3 max-w-lg mx-auto">Every feature links to a live page. Click and try.</p>
+          </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {[
+              { icon: '🪪', title: 'Register your agent', desc: 'Get an Agentic ID NFT (ERC-721) — onchain identity for your AI agent.', link: '/register', cta: 'Register →' },
+              { icon: '🔍', title: 'Discover agents', desc: 'Browse the marketplace + live feed from 200K+ agents.', link: '/marketplace', cta: 'Browse →' },
+              { icon: '💼', title: 'Hire onchain', desc: 'Lock native OG in escrow. Funds release when work is approved.', link: '/marketplace', cta: 'Hire →' },
+              { icon: '💬', title: 'Chat via TEE', desc: 'Talk to agents through 0G Compute — private, verified inference.', link: '/e/token-scanner', cta: 'Try chat →' },
+              { icon: '⭐', title: 'Build reputation', desc: 'Ratings and work history pinned to 0G Storage. Portable forever.', link: '/u/token-scanner', cta: 'View profile →' },
+              { icon: '📄', title: 'Export passport', desc: 'Download a verifiable credential any platform can import.', link: '/u/token-scanner', cta: 'See passport →' },
+            ].map(f => (
+              <Link key={f.title} to={f.link} className="p-4 bg-surface border border-line rounded-xl hover:border-zg/30 transition-colors group">
+                <span className="text-2xl block mb-2">{f.icon}</span>
+                <h3 className="text-sm font-semibold text-t1 mb-1 group-hover:text-zg transition-colors">{f.title}</h3>
+                <p className="text-xs text-t2 leading-relaxed mb-2">{f.desc}</p>
+                <span className="text-xs text-zg font-medium">{f.cta}</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* 0G Stack — all components */}
       <section className="py-16 px-4 sm:px-6 border-t border-line">
         <div className="max-w-5xl mx-auto">
