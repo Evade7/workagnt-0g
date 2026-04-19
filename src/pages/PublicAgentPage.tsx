@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { formatEther, zeroHash } from 'viem'
+import { formatEther } from 'viem'
 import { useAccount, useReadContract } from 'wagmi'
 import { motion } from 'framer-motion'
 import { AGNT_MARKETPLACE_ABI, AGNT_MARKETPLACE_ADDRESS } from '../lib/contracts'
