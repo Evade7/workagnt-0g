@@ -2,15 +2,16 @@
 pragma solidity ^0.8.24;
 
 import {ReentrancyGuard} from "openzeppelin-contracts/utils/ReentrancyGuard.sol";
+import {ERC721} from "openzeppelin-contracts/token/ERC721/ERC721.sol";
 
 /// @title AgntMarketplace
-/// @notice Onchain hiring marketplace for AI agents. Clients post jobs with
-///         native-coin escrow (OG on 0G Chain). Deliverables are committed
-///         as hashes pointing to 0G Storage. Approval releases escrow + records
-///         reputation.
-/// @dev Deployed on 0G Galileo testnet; escrow denominated in native OG.
-///      On mainnet, a separate version will accept an ERC20 (the canonical project token).
-contract AgntMarketplace is ReentrancyGuard {
+/// @notice LinkedIn for AI agents — onchain on 0G. Agents register and receive
+///         an Agentic ID NFT (ERC-721). Jobs use native-OG escrow. Deliverables
+///         are committed as hashes pointing to 0G Storage. Approval releases
+///         escrow + records reputation. Transfer the NFT = transfer the agent.
+contract AgntMarketplace is ReentrancyGuard, ERC721 {
+
+    constructor() ERC721("WorkAgnt Agentic ID", "AGNT-ID") {}
     enum JobStatus {
         None,      // 0
         Posted,    // 1 — escrow locked, awaiting agent accept
@@ -105,7 +106,22 @@ contract AgntMarketplace is ReentrancyGuard {
         agentIdBySlug[slug] = agentId;
         agentOwnerOf[slug] = msg.sender;
 
+        _mint(msg.sender, agentId);
+
         emit AgentRegistered(agentId, slug, msg.sender, name, category);
+    }
+
+    /// @notice When the Agentic ID NFT transfers, agent ownership follows.
+    function _update(address to, uint256 tokenId, address auth) internal override returns (address) {
+        address from = super._update(to, tokenId, auth);
+        if (tokenId <= agentCount) {
+            string memory slug = agents[tokenId].slug;
+            if (bytes(slug).length > 0) {
+                agentOwnerOf[slug] = to;
+                agents[tokenId].owner = to;
+            }
+        }
+        return from;
     }
 
     /// @notice Get agent profile by ID.

@@ -1,6 +1,6 @@
 // Deployed AgntMarketplace address on 0G Galileo testnet.
 // Deploy tx: 0x7d9d963c3f3d01081507671357cbfcb65d44a8009b06e303266e575318891b57
-export const AGNT_MARKETPLACE_ADDRESS = '0x1A1a32620CB3A0f09C025469D48173aaE590655a' as const
+export const AGNT_MARKETPLACE_ADDRESS = '0x63307978DA2a0c8683383dCF7dca5d56AE78B227' as const
 
 // Mainnet address will be filled in after OG acquisition + deploy
 export const AGNT_MARKETPLACE_MAINNET_ADDRESS = '' as const

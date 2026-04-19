@@ -142,6 +142,46 @@ contract AgntMarketplaceTest is Test {
         mkt.registerAgent("same", "B", "", "");
     }
 
+    function test_RegisterMintsNFT() public {
+        vm.prank(agentOwner);
+        uint256 id = mkt.registerAgent("nft-bot", "NFT Bot", "mints stuff", "nft");
+        assertEq(mkt.ownerOf(id), agentOwner);
+        assertEq(mkt.balanceOf(agentOwner), 1);
+    }
+
+    function test_TransferNFTUpdatesOwnership() public {
+        vm.prank(agentOwner);
+        uint256 id = mkt.registerAgent("transfer-bot", "Transfer Bot", "", "");
+        assertEq(mkt.agentOwnerOf("transfer-bot"), agentOwner);
+
+        address newOwner = address(0xBEEF);
+        vm.prank(agentOwner);
+        mkt.transferFrom(agentOwner, newOwner, id);
+
+        assertEq(mkt.ownerOf(id), newOwner);
+        assertEq(mkt.agentOwnerOf("transfer-bot"), newOwner);
+    }
+
+    function test_OnlyNFTOwnerCanAcceptAfterTransfer() public {
+        vm.prank(agentOwner);
+        mkt.registerAgent("owned-bot", "Owned Bot", "", "defi");
+
+        address newOwner = address(0xBEEF);
+        vm.deal(newOwner, 10 ether);
+        vm.prank(agentOwner);
+        mkt.transferFrom(agentOwner, newOwner, 1);
+
+        vm.prank(client);
+        uint256 jobId = mkt.postJob{value: 1 ether}("owned-bot", "test");
+
+        vm.expectRevert("Agent owned by someone else");
+        vm.prank(agentOwner);
+        mkt.acceptJob(jobId);
+
+        vm.prank(newOwner);
+        mkt.acceptJob(jobId);
+    }
+
     function test_RegisterThenHire() public {
         vm.prank(agentOwner);
         mkt.registerAgent("scanner", "Scanner Bot", "Scans tokens", "defi");
