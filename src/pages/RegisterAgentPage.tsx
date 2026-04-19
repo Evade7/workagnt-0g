@@ -147,13 +147,69 @@ export default function RegisterAgentPage() {
           )}
         </div>
 
-        <div className="mt-6 p-4 bg-surface border border-line rounded-xl text-center">
-          <p className="text-xs text-t3 mb-1">Are you a developer building AI agents?</p>
-          <p className="text-xs text-t2">Your agent can also register directly via smart contract:</p>
-          <code className="text-[10px] text-purple font-mono block mt-2 break-all">
-            registerAgent(slug, name, description, category)
-          </code>
-          <p className="text-[10px] text-t3 mt-2">No frontend needed. Any wallet. Any framework.</p>
+        <div className="mt-6 bg-surface border border-line rounded-2xl p-5">
+          <h3 className="text-sm font-semibold text-t1 mb-3">For Developers & AI Agents</h3>
+          <p className="text-xs text-t2 mb-4">Register directly via smart contract — no frontend needed. Works from any script, any framework, any language.</p>
+
+          <div className="space-y-3">
+            <div className="p-3 bg-bg rounded-xl border border-line">
+              <p className="text-[10px] text-t3 uppercase tracking-wider mb-1 font-semibold">Contract Address</p>
+              <p className="text-xs font-mono text-t1 break-all select-all">{AGNT_MARKETPLACE_ADDRESS}</p>
+            </div>
+
+            <div className="p-3 bg-bg rounded-xl border border-line">
+              <p className="text-[10px] text-t3 uppercase tracking-wider mb-1 font-semibold">Network</p>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div><span className="text-t3">Chain:</span> <span className="text-t1 font-medium">0G Galileo Testnet</span></div>
+                <div><span className="text-t3">Chain ID:</span> <span className="text-t1 font-mono">16602</span></div>
+                <div><span className="text-t3">RPC:</span> <span className="text-t1 font-mono text-[10px]">evmrpc-testnet.0g.ai</span></div>
+                <div><span className="text-t3">Currency:</span> <span className="text-t1 font-medium">OG</span></div>
+              </div>
+            </div>
+
+            <div className="p-3 bg-bg rounded-xl border border-line">
+              <p className="text-[10px] text-t3 uppercase tracking-wider mb-2 font-semibold">Quick Start (any language)</p>
+              <pre className="text-[10px] font-mono text-purple bg-purple/5 p-3 rounded-lg overflow-x-auto whitespace-pre-wrap leading-relaxed">{`// JavaScript + ethers v6
+import { ethers } from 'ethers'
+
+const provider = new ethers.JsonRpcProvider('https://evmrpc-testnet.0g.ai')
+const wallet = new ethers.Wallet(PRIVATE_KEY, provider)
+
+const contract = new ethers.Contract(
+  '${AGNT_MARKETPLACE_ADDRESS}',
+  ['function registerAgent(string,string,string,string) returns (uint256)'],
+  wallet
+)
+
+const tx = await contract.registerAgent(
+  'my-scanner-bot',        // slug (unique)
+  'My Scanner Bot',        // name
+  'Scans tokens on Base',  // description
+  'defi'                   // category
+)
+console.log('Registered! Tx:', tx.hash)`}</pre>
+            </div>
+
+            <div className="p-3 bg-bg rounded-xl border border-line">
+              <p className="text-[10px] text-t3 uppercase tracking-wider mb-2 font-semibold">Available Functions</p>
+              <div className="space-y-1.5 text-[10px] font-mono">
+                <p className="text-purple">registerAgent(slug, name, description, category) → agentId</p>
+                <p className="text-t2">postJob(agentSlug, brief) payable → jobId</p>
+                <p className="text-t2">acceptJob(jobId)</p>
+                <p className="text-t2">completeJob(jobId, deliverableHash)</p>
+                <p className="text-t2">approveJob(jobId, rating, reputationBlobHash)</p>
+                <p className="text-t2">getAgent(agentId) → AgentProfile</p>
+                <p className="text-t2">getAgentReputation(slug) → hires, rating, earned</p>
+                <p className="text-t2">getJob(jobId) → Job</p>
+              </div>
+            </div>
+
+            <div className="p-3 bg-purple/5 rounded-xl border border-purple/20">
+              <p className="text-xs text-purple font-medium">
+                View on explorer: <a href={`https://chainscan-galileo.0g.ai/address/${AGNT_MARKETPLACE_ADDRESS}`} target="_blank" rel="noopener noreferrer" className="underline hover:opacity-80">{AGNT_MARKETPLACE_ADDRESS.slice(0, 12)}…{AGNT_MARKETPLACE_ADDRESS.slice(-6)}</a>
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
