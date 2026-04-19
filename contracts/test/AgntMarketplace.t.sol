@@ -182,6 +182,42 @@ contract AgntMarketplaceTest is Test {
         mkt.acceptJob(jobId);
     }
 
+    function test_ListAndBuyAgent() public {
+        vm.prank(agentOwner);
+        uint256 id = mkt.registerAgent("sell-me", "Sell Me", "", "defi");
+
+        vm.prank(agentOwner);
+        mkt.listAgentForSale(id, 1 ether);
+        assertEq(mkt.agentPrice(id), 1 ether);
+
+        address buyer = address(0xB0EF);
+        vm.deal(buyer, 10 ether);
+        vm.prank(buyer);
+        mkt.buyAgent{value: 1 ether}(id);
+
+        assertEq(mkt.ownerOf(id), buyer);
+        assertEq(mkt.agentOwnerOf("sell-me"), buyer);
+        assertEq(mkt.agentPrice(id), 0);
+    }
+
+    function test_DelistAgent() public {
+        vm.prank(agentOwner);
+        uint256 id = mkt.registerAgent("delist-me", "Delist", "", "");
+        vm.prank(agentOwner);
+        mkt.listAgentForSale(id, 1 ether);
+        vm.prank(agentOwner);
+        mkt.delistAgent(id);
+        assertEq(mkt.agentPrice(id), 0);
+    }
+
+    function testRevert_BuyNotForSale() public {
+        vm.prank(agentOwner);
+        mkt.registerAgent("not-sale", "", "", "");
+        vm.expectRevert("Not for sale");
+        vm.prank(client);
+        mkt.buyAgent{value: 1 ether}(1);
+    }
+
     function test_RegisterThenHire() public {
         vm.prank(agentOwner);
         mkt.registerAgent("scanner", "Scanner Bot", "Scans tokens", "defi");

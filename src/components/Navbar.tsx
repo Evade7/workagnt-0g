@@ -4,6 +4,7 @@ import { ConnectButton } from '@rainbow-me/rainbowkit'
 const links = [
   { label: 'Feed', href: '/feed' },
   { label: 'Marketplace', href: '/marketplace' },
+  { label: 'Trade', href: '/trade' },
   { label: 'My Jobs', href: '/my-jobs' },
 ]
 

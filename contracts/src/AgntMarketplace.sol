@@ -129,6 +129,46 @@ contract AgntMarketplace is ReentrancyGuard, ERC721 {
         return agents[agentId];
     }
 
+    // ─── Agent Trading ───
+
+    mapping(uint256 => uint256) public agentPrice; // 0 = not for sale
+
+    event AgentListed(uint256 indexed agentId, uint256 price, address indexed seller);
+    event AgentSold(uint256 indexed agentId, uint256 price, address indexed seller, address indexed buyer);
+    event AgentDelisted(uint256 indexed agentId);
+
+    /// @notice List your agent NFT for sale at a fixed price in native OG.
+    function listAgentForSale(uint256 agentId, uint256 price) external {
+        require(ownerOf(agentId) == msg.sender, "Not owner");
+        require(price > 0, "Price must be > 0");
+        agentPrice[agentId] = price;
+        emit AgentListed(agentId, price, msg.sender);
+    }
+
+    /// @notice Remove your agent from sale.
+    function delistAgent(uint256 agentId) external {
+        require(ownerOf(agentId) == msg.sender, "Not owner");
+        agentPrice[agentId] = 0;
+        emit AgentDelisted(agentId);
+    }
+
+    /// @notice Buy a listed agent. Sends OG to seller, transfers NFT + ownership to buyer.
+    function buyAgent(uint256 agentId) external payable nonReentrant {
+        uint256 price = agentPrice[agentId];
+        require(price > 0, "Not for sale");
+        require(msg.value >= price, "Insufficient payment");
+        address seller = ownerOf(agentId);
+        require(seller != msg.sender, "Can't buy own agent");
+
+        agentPrice[agentId] = 0;
+        _transfer(seller, msg.sender, agentId);
+
+        (bool ok,) = seller.call{value: msg.value}("");
+        require(ok, "Payment failed");
+
+        emit AgentSold(agentId, price, seller, msg.sender);
+    }
+
     /// @notice Post a job. Locks msg.value of native OG in escrow.
     function postJob(string calldata agentSlug, string calldata brief)
         external

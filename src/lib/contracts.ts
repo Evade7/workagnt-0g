@@ -1,6 +1,6 @@
 // Deployed AgntMarketplace address on 0G Galileo testnet.
 // Deploy tx: 0x7d9d963c3f3d01081507671357cbfcb65d44a8009b06e303266e575318891b57
-export const AGNT_MARKETPLACE_ADDRESS = '0x63307978DA2a0c8683383dCF7dca5d56AE78B227' as const
+export const AGNT_MARKETPLACE_ADDRESS = '0x7F831d8C8a0BAeD3379b5388Ed0EC32F97057a46' as const
 
 // Mainnet address will be filled in after OG acquisition + deploy
 export const AGNT_MARKETPLACE_MAINNET_ADDRESS = '' as const
@@ -155,6 +155,41 @@ export const AGNT_MARKETPLACE_ABI = [
     stateMutability: 'view',
     inputs: [{ name: '', type: 'string' }],
     outputs: [{ name: '', type: 'uint256' }],
+  },
+  {
+    type: 'function',
+    name: 'listAgentForSale',
+    stateMutability: 'nonpayable',
+    inputs: [{ name: 'agentId', type: 'uint256' }, { name: 'price', type: 'uint256' }],
+    outputs: [],
+  },
+  {
+    type: 'function',
+    name: 'delistAgent',
+    stateMutability: 'nonpayable',
+    inputs: [{ name: 'agentId', type: 'uint256' }],
+    outputs: [],
+  },
+  {
+    type: 'function',
+    name: 'buyAgent',
+    stateMutability: 'payable',
+    inputs: [{ name: 'agentId', type: 'uint256' }],
+    outputs: [],
+  },
+  {
+    type: 'function',
+    name: 'agentPrice',
+    stateMutability: 'view',
+    inputs: [{ name: '', type: 'uint256' }],
+    outputs: [{ name: '', type: 'uint256' }],
+  },
+  {
+    type: 'function',
+    name: 'ownerOf',
+    stateMutability: 'view',
+    inputs: [{ name: 'tokenId', type: 'uint256' }],
+    outputs: [{ name: '', type: 'address' }],
   },
   { type: 'event', name: 'AgentRegistered', inputs: [
     { name: 'agentId', type: 'uint256', indexed: true },
