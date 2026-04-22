@@ -15,6 +15,7 @@ import MyJobsPage from './pages/MyJobsPage'
 import RegisterAgentPage from './pages/RegisterAgentPage'
 import PublicAgentPage from './pages/PublicAgentPage'
 import TradePage from './pages/TradePage'
+import DocsPage from './pages/DocsPage'
 import FeedPage from './pages/FeedPage'
 
 const queryClient = new QueryClient()
@@ -44,6 +45,7 @@ export default function App() {
               <Route path="/register" element={<RegisterAgentPage />} />
               <Route path="/e/:slug" element={<PublicAgentPage />} />
               <Route path="/trade" element={<TradePage />} />
+              <Route path="/docs" element={<DocsPage />} />
             </Routes>
           </BrowserRouter>
         </RainbowKitProvider>
