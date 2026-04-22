@@ -6,7 +6,7 @@ import { motion } from 'framer-motion'
 import { AGNT_MARKETPLACE_ABI, AGNT_MARKETPLACE_ADDRESS } from '../lib/contracts'
 import { zgGalileo } from '../lib/wagmi'
 import { useEthersSigner } from '../lib/ethers-adapter'
-import { inferenceWith0G } from '../lib/zg-compute'
+import { inferenceWith0G, setupComputeAccount } from '../lib/zg-compute'
 
 interface ChatMsg { role: 'user' | 'assistant'; content: string; verified?: boolean }
 
@@ -14,6 +14,8 @@ export default function PublicAgentPage() {
   const { slug } = useParams<{ slug: string }>()
   const { isConnected } = useAccount()
   const ethersSigner = useEthersSigner({ chainId: zgGalileo.id })
+  const [setupStatus, setSetupStatus] = useState('')
+  const [isSettingUp, setIsSettingUp] = useState(false)
 
   const [messages, setMessages] = useState<ChatMsg[]>([])
   const [input, setInput] = useState('')
@@ -154,6 +156,26 @@ export default function PublicAgentPage() {
                       <p className="text-sm text-t3 mb-2">Chat with {agent ? (agent as any).name : slug}</p>
                       <p className="text-xs text-t3">Inference runs inside a 0G Compute TEE.<br />Responses are cryptographically verified.</p>
                       {!isConnected && <p className="text-xs text-zg mt-3">Connect wallet to enable TEE chat.</p>}
+                      {isConnected && (
+                        <div className="mt-4">
+                          <button
+                            onClick={async () => {
+                              setIsSettingUp(true)
+                              setSetupStatus('Depositing 3 OG to Compute ledger…')
+                              const result = await setupComputeAccount(ethersSigner, '3')
+                              setSetupStatus(result)
+                              setIsSettingUp(false)
+                            }}
+                            disabled={isSettingUp}
+                            className="px-4 py-2 text-xs text-white rounded-lg hover:opacity-90 disabled:opacity-40"
+                            style={{ background: 'linear-gradient(to right, #9200E1, #B75FFF)' }}
+                          >
+                            {isSettingUp ? 'Setting up…' : 'Setup Compute Account (3 OG)'}
+                          </button>
+                          {setupStatus && <p className="text-[10px] text-t3 mt-2">{setupStatus}</p>}
+                          <p className="text-[10px] text-t3 mt-1">First time only. Required to use 0G Compute TEE.</p>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
